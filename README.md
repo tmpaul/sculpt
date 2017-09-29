@@ -1,2 +1,2 @@
 # sculpt
-![Sculpt](./animated.gif){:height="50%" width="50%"}
+![Sculpt](./animated.gif?s=50)
