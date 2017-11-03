@@ -1,0 +1,17 @@
+{
+  "presets": [
+    "es2015", "es2016", "es2017", "react", "stage-0"
+  ],
+  "plugins": [
+    [ "module-resolver", {
+      "root": [ "./src/app" ],
+      "alias": {
+        "graft-client": "./node_modules/@roam/graft/dist/client"
+      }
+    }, "add-module-exports", "transform-decorators-legacy" ],
+    "react-hot-loader/babel"
+  ],
+  "ignore": [
+    "node_modules/**/*.js"
+  ]
+}

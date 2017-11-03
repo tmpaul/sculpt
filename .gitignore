@@ -1,0 +1,24 @@
+# Mac stuff
+.DS_Store
+
+# NPM and dependency objects
+npm-debug.log*
+node_modules
+
+# Auto-created files
+dist
+build
+release
+lib
+
+# Temporary files
+tmp
+
+# Sublime Text
+*sublime-workspace
+*.sublime-project
+
+# dev mode logs
+*.log
+
+docs/generated-documentation/
