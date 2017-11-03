@@ -1,4 +1,4 @@
-# ![Sculpt](./sculpt.svg)
+# Sculpt
 
 <img src="./logo.svg" width="125" height="125"/>
 
