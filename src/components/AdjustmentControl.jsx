@@ -1,4 +1,4 @@
-import BaseComponent from "sculpt/core/BaseComponent";
+import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
 
 export default class AdjustmentControl extends BaseComponent {

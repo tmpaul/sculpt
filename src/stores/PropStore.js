@@ -1,4 +1,4 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 
 export default class PropStore {
   // ***********************************************

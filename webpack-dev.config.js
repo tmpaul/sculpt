@@ -56,7 +56,7 @@ module.exports = {
       },
       {
         test: /\.(jsx)$/,
-        loaders: [ path.resolve(__dirname) + "/docgen-loader", "babel" ],
+        loaders: [ "babel" ],
         include: [ path.resolve(__dirname, "../src"), path.join(__dirname, "src") ],
         exclude: path.resolve(__dirname, "../src/node_modules")
       },

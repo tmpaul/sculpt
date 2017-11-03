@@ -1,8 +1,8 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 import { EventEmitter } from "events";
 import clone from "clone";
-import { changePointId } from "sculpt/utils/PointUtils";
-import { AbortStep } from "sculpt/components/steps";
+import { changePointId } from "utils/PointUtils";
+import { AbortStep } from "components/steps";
 
 export default class StepStore extends EventEmitter {
 

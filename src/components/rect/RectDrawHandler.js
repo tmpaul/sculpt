@@ -1,6 +1,6 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
-import { AbortStep } from "sculpt/components/steps";
-import { detectSnapping, syncPoint } from "sculpt/utils/PointUtils";
+import { ObjectUtils } from "utils/GenericUtils";
+import { AbortStep } from "components/steps";
+import { detectSnapping, syncPoint } from "utils/PointUtils";
 /**
  * Handle the start of drawing operation for a rectangle
  * 

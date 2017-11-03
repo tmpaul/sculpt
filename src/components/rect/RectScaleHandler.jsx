@@ -1,6 +1,6 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 import { detectSnapping, toSourcePoint, closestSelfControlPoint, 
-  getPointNameFromPointId, getComponentIdFromPointId } from "sculpt/utils/PointUtils";
+  getPointNameFromPointId, getComponentIdFromPointId } from "utils/PointUtils";
 
 const opposite = {
   left: "right",
@@ -8,14 +8,6 @@ const opposite = {
   top: "bottom",
   bottom: "top"
 };
-
-const opposite = {
-  left: "right",
-  right: "left",
-  top: "bottom",
-  bottom: "top"
-};
-
 /**
  * Handle the start of a scale operation
  * @param  {Object} picture                The picture being drawn

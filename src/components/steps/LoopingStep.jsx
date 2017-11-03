@@ -1,4 +1,4 @@
-import { CurrentStepComponent } from "sculpt/components/steps";
+import { CurrentStepComponent } from "components/steps";
 
 function handleClick(stepStore, index, loopIndex) {
   stepStore.toggleSelected(index);

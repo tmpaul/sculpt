@@ -1,5 +1,5 @@
 import React from "react";
-import { DomEvents, ObjectUtils } from "sculpt/utils/GenericUtils";
+import { DomEvents, ObjectUtils } from "utils/GenericUtils";
 
 function nonCoreMethods(method) {
   // If a method is a core method, then do not bind it again.

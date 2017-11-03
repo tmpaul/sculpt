@@ -1,4 +1,4 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 import { 
   detectSnapping, 
   toSourcePoint, 
@@ -6,7 +6,7 @@ import {
   getPointNameFromPointId,
   getTransformedPoint,
   reflectPoint,
-  getComponentIdFromPointId } from "sculpt/utils/PointUtils";
+  getComponentIdFromPointId } from "utils/PointUtils";
 
 const opposite = {
   left: "right",

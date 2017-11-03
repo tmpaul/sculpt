@@ -1,14 +1,15 @@
 import { PropTypes } from "react";
-import ControlPoint from "sculpt/components/Marker";
-import Draggable from "sculpt/components/Draggable";
-import { StyleUtils, DomEvents } from "GenericUtils";
-import SnappingStore from "sculpt/stores/SnappingStore";
-import BaseComponent from "sculpt/core/BaseComponent";
-import { onMoveStart, onMove, onMoveEnd, getMovingStepSlots, evaluateMoveStep } from "sculpt/components/rect/RectMoveHandler";
-import { onScaleStart, onScale, onScaleEnd, getScalingStepSlots, evaluateScaleStep } from "sculpt/components/rect/RectScaleHandler";
-import { onDrawStart, onDraw, onDrawEnd, getDrawingStepSlots, evaluateDrawStep } from "sculpt/components/rect/RectDrawHandler";
-import { onRotateStart, onRotate, onRotateEnd, getRotationStepSlots, evaluateRotateStep } from "sculpt/components/rect/RectRotateHandler";
-import getSnappingPoints from "sculpt/components/rect/SnapPoints";
+import ControlPoint from "components/Marker";
+import Draggable from "components/Draggable";
+import { StyleUtils, DomEvents } from "utils/GenericUtils";
+import SnappingStore from "stores/SnappingStore";
+import BaseComponent from "core/BaseComponent";
+import OperationStore from "stores/OperationStore";
+import { onMoveStart, onMove, onMoveEnd, getMovingStepSlots, evaluateMoveStep } from "components/rect/RectMoveHandler";
+import { onScaleStart, onScale, onScaleEnd, getScalingStepSlots, evaluateScaleStep } from "components/rect/RectScaleHandler";
+import { onDrawStart, onDraw, onDrawEnd, getDrawingStepSlots, evaluateDrawStep } from "components/rect/RectDrawHandler";
+import { onRotateStart, onRotate, onRotateEnd, getRotationStepSlots, evaluateRotateStep } from "components/rect/RectRotateHandler";
+import getSnappingPoints from "components/rect/SnapPoints";
 
 let DraggableRect = Draggable("rect");
 let merge = StyleUtils.merge;

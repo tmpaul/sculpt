@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "clone": "^2.1.1",
+    "deepmerge": "^2.0.1",
     "memoizee": "^0.4.11",
     "react": "^15.4.2",
     "react-color": "^2.13.8",

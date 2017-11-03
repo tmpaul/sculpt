@@ -1,13 +1,11 @@
-import deepmerge from "deepmerge";
+import merge from "deepmerge";
 
 export function throttle(fn, threshhold, scope) {
   threshhold || (threshhold = 250);
-  var last,
-      deferTimer;
-  return function () {
-    var context = scope || this;
-
-    var now = +new Date,
+  let last, deferTimer;
+  return function() {
+    let context = scope || this;
+    let now = +new Date,
         args = arguments;
     if (last && now < last + threshhold) {
       // hold on to it
@@ -45,7 +43,7 @@ export function debounce(func, wait, immediate) {
   };
 };
 
-export const ObjectUtils = {
+class ObjectUtilsConstructor {
 
   constructor() {
     this.NOOP = function() {};
@@ -69,7 +67,7 @@ export const ObjectUtils = {
   }
 
   extend(object, ...overrides) {
-    return merge.all([ object ].concat(overrides), {
+    return merge.all([ object ].concat(overrides).filter(Boolean), {
       clone: true
     });
   }
@@ -134,6 +132,8 @@ export const ObjectUtils = {
     return index;
   }
 };
+
+export const ObjectUtils = new ObjectUtilsConstructor();
 
 export const StyleUtils = {
   merge: ObjectUtils.extend

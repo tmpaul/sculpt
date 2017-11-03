@@ -1,8 +1,8 @@
-import BaseComponent from "sculpt/core/BaseComponent";
-import ControlPoint from "sculpt/components/Marker";
-import SnapCross from "sculpt/components/SnapCross";
-import DrawingStore from "sculpt/stores/DrawingStore";
-import OperationStore from "sculpt/stores/OperationStore";
+import BaseComponent from "core/BaseComponent";
+import ControlPoint from "components/Marker";
+import SnapCross from "components/SnapCross";
+import DrawingStore from "stores/DrawingStore";
+import OperationStore from "stores/OperationStore";
 
 export default class SnapPoints extends BaseComponent {
   // *********************************************************

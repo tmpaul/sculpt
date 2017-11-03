@@ -1,20 +1,20 @@
 import React from "react";
-import { debounce, throttle, ObjectUtils } from "sculpt/utils/GenericUtils";
+import { debounce, throttle, ObjectUtils } from "utils/GenericUtils";
 import clone from "clone";
 
-import { RootGroup } from "sculpt/components/GroupComponents";
-import SnapPoints from "sculpt/components/SnapPoints";
-import Store from "sculpt/components/Store";
+import { RootGroup } from "components/GroupComponents";
+import SnapPoints from "components/SnapPoints";
+import Store from "components/Store";
 
-import PropetyPanelStore from "sculpt/stores/PropertyPanelStore";
-import StepStore from "sculpt/stores/StepStore";
-import PropStore from "sculpt/stores/PropStore";
-import SnappingStore from "sculpt/stores/SnappingStore";
-import EventStoreSingleton from "sculpt/stores/EventStore";
-import OperationStoreSingleton from "sculpt/stores/OperationStore";
+import PropetyPanelStore from "stores/PropertyPanelStore";
+import StepStore from "stores/StepStore";
+import PropStore from "stores/PropStore";
+import SnappingStore from "stores/SnappingStore";
+import EventStoreSingleton from "stores/EventStore";
+import OperationStoreSingleton from "stores/OperationStore";
 import { getComponentIdFromPointId, getPointNameFromPointId,
-  getPointId, changePointId } from "sculpt/utils/PointUtils";
-import { AbortStep } from "sculpt/components/steps";
+  getPointId, changePointId } from "utils/PointUtils";
+import { AbortStep } from "components/steps";
 import memoize from "memoizee";
 
 /**

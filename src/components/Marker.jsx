@@ -1,17 +1,18 @@
-import { Behaviors, ObjectUtils } from "sculpt/utils/GenericUtils";
-import Draggable from "sculpt/components/Draggable";
+import { Behaviors, ObjectUtils } from "utils/GenericUtils";
+import Draggable from "components/Draggable";
 
 let m = ObjectUtils.extend;
 
 function selectedState(props) {
   let styles = {
     strokeWidth: 2,
+    filter: "url(#bevel)",
     r: 5
   };
   if (props.selected) {
     if (!props.mode) {
-      styles.fill = "#008dff";
-      styles.stroke = "#266882";
+      styles.fill = "#0a58ff";
+      styles.stroke = "#cecece";
     }
     return styles;
   }
@@ -29,13 +30,13 @@ function guideMode(props) {
   return props.mode === "guide" ? {
     fill: "cyan",
     stroke: "#1bc1c1",
-    strokeWidth: 1,
+    strokeWidth: 2,
     r: 0,
   } : undefined;
 }
 
 function getMarkerProps(props) {
-  return StyleUtils.merge(
+  return m(
     ControlPoint.defaultStyles,
     snapMode(props),
     guideMode(props),
@@ -54,7 +55,7 @@ export default function ControlPoint(props) {
       cx={props.x}
       cy={props.y}
       {...getMarkerProps(props)}
-      filter={"url(#bevel)"}
+      noMatrix={props.noMatrix}
       onDragStart={props.onDragStart}
       onDrag={props.onDrag}
       onDragEnd={props.onDragEnd}
@@ -74,7 +75,9 @@ ControlPoint.defaultProps = {
   y: 0,
   r: 3,
   size: 3,
+  noMatrix: false,
   strokeWidth: 1,
   stroke: "none",
   fill: "none"
 };
+

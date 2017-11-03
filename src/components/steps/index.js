@@ -1,5 +1,5 @@
-import BaseComponent from "sculpt/core/BaseComponent";
-import Step from "sculpt/components/steps/Step";
+import BaseComponent from "core/BaseComponent";
+import Step from "components/steps/Step";
 
 function DummyStep(props) {
   return (<input className="step current-step" readOnly/>);

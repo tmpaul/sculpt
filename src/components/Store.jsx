@@ -1,8 +1,8 @@
 import React from "react";
-import BaseComponent from "sculpt/core/BaseComponent";
-import EventStore from "sculpt/stores/EventStore";
-import OperationStore from "sculpt/stores/OperationStore";
-import DrawingStore from "sculpt/stores/DrawingStore";
+import BaseComponent from "core/BaseComponent";
+import EventStore from "stores/EventStore";
+import OperationStore from "stores/OperationStore";
+import DrawingStore from "stores/DrawingStore";
 
 
 export default class Store extends BaseComponent {
@@ -38,6 +38,7 @@ export default class Store extends BaseComponent {
     let componentProps = this.getComponentProps(props);
     let child = React.Children.only(props.children);
     return Object.assign({}, child.props, componentProps, {
+      componentId: props.componentId,
       handleEvent: this.handleEvent
     });
   }

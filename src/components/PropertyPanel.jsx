@@ -1,6 +1,6 @@
-import BaseComponent from "sculpt/core/BaseComponent";
-import PropertyPanelStore from "sculpt/stores/PropertyPanelStore";
-import EditableProperty from "sculpt/components/EditableProperty";
+import BaseComponent from "core/BaseComponent";
+import PropertyPanelStore from "stores/PropertyPanelStore";
+import EditableProperty from "components/EditableProperty";
 
 export default class PropertyPanel extends BaseComponent {
   constructor(...args) {

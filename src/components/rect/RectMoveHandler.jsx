@@ -1,6 +1,6 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 import { detectSnapping, toSourcePoint, closestSelfControlPoint, 
-  getPointNameFromPointId, getComponentIdFromPointId } from "sculpt/utils/PointUtils";
+  getPointNameFromPointId, getComponentIdFromPointId } from "utils/PointUtils";
 
 /**
  * Handle the start of a move operation

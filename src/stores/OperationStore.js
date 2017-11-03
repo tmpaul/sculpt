@@ -10,6 +10,7 @@ class OperationStore extends EventEmitter {
     this.OPS = {
       DRAW: Symbol("DRAW"),
       MOVE: Symbol("MOVE"),
+      ROTATE: Symbol("ROTATE"),
       SCALE: Symbol("SCALE")
     };
   }

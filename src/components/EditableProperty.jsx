@@ -1,7 +1,7 @@
 import { PropTypes } from "react";
 import { SketchPicker } from "react-color";
-import AdjustmentControl from "sculpt/components/AdjustmentControl";
-import BaseComponent from "sculpt/core/BaseComponent";
+import AdjustmentControl from "components/AdjustmentControl";
+import BaseComponent from "core/BaseComponent";
 
 export default class EditableProperty extends BaseComponent {
   // *********************************************************

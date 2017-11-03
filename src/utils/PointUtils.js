@@ -107,6 +107,44 @@ export function detectSnapping(snappingStore, candidatePoint, selfId) {
   }
 };
 
+/**
+ * Given an SVG frame, transform a point from native space to SVG space
+ * @param  {Object} picture     The picture being drawn
+ * @param  {SVGMatrix} matrix   The transformation matrix associated with the node
+ * @param  {Object} coordinates The coordinates to transform
+ * @return {Object} The point coordinates in SVG space         
+ */
+export function getTransformedPoint(picture, matrix, coordinates = {}) {
+  if (picture.point && matrix) {
+    picture.point.x = coordinates.x;
+    picture.point.y = coordinates.y;
+    // Get transformed targetPoint
+    let transformed = picture.point.matrixTransform(matrix);
+    return {
+      x: transformed.x - picture.offsetX,
+      y: transformed.y - picture.offsetY
+    };
+  }
+  return coordinates;
+};
+
+/**
+ * Reflect (Mirror) the sourcePoint with targetPoint as the origin
+ * @param  {Object} sourcePoint The source point to be reflected
+ * @param  {Object} targetPoint The point about which source point is to be reflected
+ * @return {Object}             Reflected point
+ */
+export function reflectPoint(sourcePoint, targetPoint) {
+  let deltaX = sourcePoint.x - targetPoint.x;
+  let deltaY = sourcePoint.y + targetPoint.y;
+  let d = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+  let angle = Math.tan(deltaY / deltaX);
+  return {
+    x: targetPoint.x - d * Math.cos(angle),
+    y: targetPoint.y + d * Math.sin(angle)
+  };
+};
+
 
 /**
  * Sync a point's properties based on propStore

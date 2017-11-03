@@ -189,3 +189,65 @@ export default class Quadtree {
     return null;
   }
 };
+
+export class FakeQuadtree {
+  constructor(bounds, points = [], splitLimit = 20, registry, nodeArray) {
+    this._registry = {};
+    points.forEach((point) => {
+      this.addPoint(point.pointId, point.pointX, point.pointY);
+    });
+  }
+
+  getBounds() {
+    return [];
+  }
+  
+  getPointById(id) {
+    return this._registry[id];
+  }
+  
+  removePoint(pointId) {
+    this._registry[pointId] = null;
+  }
+
+  addPoint(pointId, pointX, pointY) {
+    this._registry[pointId] = {
+      pointId,
+      pointX,
+      pointY
+    };
+  }
+
+  getClosestPoints(x, y, threshold, filterFunction) {
+    // Get the closest snapping points based on threshold distance!
+    // Do this only at leaf nodes
+    filterFunction = filterFunction || ((d) => d);
+    let closestPoints = [];
+    Object.keys(this._registry).forEach((pointId) => {
+      let pointInfo = this._registry[pointId];
+      if (pointInfo) {
+        let { pointX, pointY } = pointInfo;
+        if (filterFunction(pointId, pointX, pointY)) {
+          if ((Math.abs(pointX - x) + Math.abs(pointY - y)) <= threshold) {
+            closestPoints.push({
+              pointId,
+              pointX,
+              pointY
+            });
+          }
+        }
+      }
+    });
+    return closestPoints.sort(function(a, b) {
+      return a.pointId.length > b.pointId.length ? -1 : 1;
+    });
+  }
+
+  getPoints() {
+    return Object.keys(this._registry).map((k) => this._registry[k]).filter(Boolean);
+  }
+  
+  printPoints() {
+    // Do nothing
+  }
+};

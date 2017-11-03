@@ -1,5 +1,5 @@
-import PropStore from "sculpt/stores/PropStore";
-import SnappingStore from "sculpt/stores/SnappingStore";
+import PropStore from "stores/PropStore";
+import SnappingStore from "stores/SnappingStore";
 // DrawingStore is responsible for drawing a new picture into the canvas.
 // The new picture can either be a primitive, or another picture.
 import { EventEmitter } from "events";

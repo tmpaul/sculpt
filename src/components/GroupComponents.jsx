@@ -1,7 +1,7 @@
-import BaseComponent from "sculpt/core/BaseComponent";
+import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
-import Marker from "sculpt/components/Marker";
-import Rectangle from "sculpt/components/rect/Rectangle";
+import Marker from "components/Marker";
+import Rectangle from "components/rect/Rectangle";
 
 /**
  * A root SVG <g> component. It simply showing snapping points

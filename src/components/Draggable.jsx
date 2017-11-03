@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
 import ReactDOM from "react-dom";
-import DomEvents from "DomEvents";
-import BaseComponent from "sculpt/core/BaseComponent";
+import { DomEvents } from "utils/GenericUtils";
+import BaseComponent from "core/BaseComponent";
 
 export default (Component) => {
   class DraggableComponent extends BaseComponent {
@@ -74,10 +74,10 @@ export default (Component) => {
 
     handleMouseMove(e) {
       let { restrictX, restrictY } = this.props;
-      let x =  e.clientX, y = e.clientY;
+      let x =  e.offsetX, y = e.offsetY;
       if (this.mat && !this.props.noMatrix) {
-        this.pt.x = e.clientX;
-        this.pt.y = e.clientY;
+        this.pt.x = x;
+        this.pt.y = y;
         let tx = this.pt.matrixTransform(this.mat);
         x = tx.x;
         y = tx.y;

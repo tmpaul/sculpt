@@ -1,7 +1,7 @@
-import { ObjectUtils } from "sculpt/utils/GenericUtils";
-import { CurrentStepComponent } from "sculpt/components/steps";
-import LoopingStepComponent from "sculpt/components/steps/LoopingStep";
-import BaseComponent from "sculpt/core/BaseComponent";
+import { ObjectUtils } from "utils/GenericUtils";
+import { CurrentStepComponent } from "components/steps";
+import LoopingStepComponent from "components/steps/LoopingStep";
+import BaseComponent from "core/BaseComponent";
 
 
 export default class Steps extends BaseComponent {

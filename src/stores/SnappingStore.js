@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 import { intersect, shape } from "svg-intersections";
-import Quadtree from "sculpt/utils/Quadtree";
-import { getComponentIdFromPointId, getPointNameFromPointId } from "sculpt/utils/PointUtils";
+import { getComponentIdFromPointId, getPointNameFromPointId } from "utils/PointUtils";
+import { debounce, ObjectUtils } from "utils/GenericUtils";
+import { FakeQuadtree as Quadtree } from "utils/Quadtree";
 
 export default class SnappingStore extends EventEmitter {
 
@@ -23,6 +24,8 @@ export default class SnappingStore extends EventEmitter {
     // We need a fresh quadtree for each layer in the editor.
     this.quadtree = null;
     this.propStore = propStore;
+    this.show = debounce(this.show.bind(this), 20);
+    this.hide = debounce(this.hide.bind(this), 20);
   }
 
   // ***********************************************
@@ -165,7 +168,7 @@ export default class SnappingStore extends EventEmitter {
    * @return {Object}                   The matching snap point, id and x,y coords.
    */
   getClosestSnappingPoint(x, y, filterFunction, cycleIndex = 0) {
-    let points = this.quadtree.getClosestPoints(x, y, 5, filterFunction);
+    let points = this.quadtree.getClosestPoints(x, y, 7, filterFunction);
     return points[cycleIndex % points.length];
   }
 
@@ -195,3 +198,4 @@ export default class SnappingStore extends EventEmitter {
     });
   }
 };
+
