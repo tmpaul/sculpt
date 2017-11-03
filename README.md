@@ -1,5 +1,7 @@
 # ![Sculpt](./sculpt.svg)
 
+<img src="./logo.svg" width="125" height="125"/>
+
 A direct manipulation drawing tool implemented using ReactJS onto an SVG surface inspired by
 the [this video](https://www.youtube.com/watch?v=ef2jpjTEB5U) from Bret Victor.
 
