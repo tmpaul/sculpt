@@ -18,3 +18,8 @@ Uses ReactJS for creating components and SVG for rendering.
 ### Roadmap
 * Add support for one more primitive component
 * Add support for data expressions and binding
+
+### Running
+* npm install
+* npm run start
+* Navigate to `http://localhost:3010/editor`
