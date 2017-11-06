@@ -1,5 +1,4 @@
 import { Behaviors, ObjectUtils } from "utils/GenericUtils";
-import Draggable from "components/Draggable";
 
 let m = ObjectUtils.extend;
 
@@ -47,18 +46,12 @@ function getMarkerProps(props) {
   );
 }
 
-let DraggableCircle = Draggable("circle");
-
 export default function ControlPoint(props) {
   return (
-    <DraggableCircle
+    <circle
       cx={props.x}
       cy={props.y}
       {...getMarkerProps(props)}
-      noMatrix={props.noMatrix}
-      onDragStart={props.onDragStart}
-      onDrag={props.onDrag}
-      onDragEnd={props.onDragEnd}
     />
   );
 };
@@ -75,7 +68,6 @@ ControlPoint.defaultProps = {
   y: 0,
   r: 3,
   size: 3,
-  noMatrix: false,
   strokeWidth: 1,
   stroke: "none",
   fill: "none"
