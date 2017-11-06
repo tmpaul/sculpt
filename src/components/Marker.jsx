@@ -1,4 +1,4 @@
-import { Behaviors, ObjectUtils } from "utils/GenericUtils";
+import { ObjectUtils } from "utils/GenericUtils";
 
 let m = ObjectUtils.extend;
 

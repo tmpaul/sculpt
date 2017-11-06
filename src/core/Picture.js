@@ -2,7 +2,7 @@ import React from "react";
 import { debounce, throttle, ObjectUtils } from "utils/GenericUtils";
 import clone from "clone";
 
-import { RootGroup } from "components/GroupComponents";
+import Canvas from "components/GroupComponents";
 import SnapPoints from "components/SnapPoints";
 import Store from "components/Store";
 
@@ -608,11 +608,11 @@ export default class Picture {
     this.propStore.setInfo("0", {
       id: "0",
       name: "canvas",
-      type: RootGroup,
+      type: Canvas,
       props: canvas.props
     });
     // Set snapping points
-    this.snappingStore.setSnappingPoints("0", RootGroup.getSnappingPoints(canvas.props));
+    this.snappingStore.setSnappingPoints("0", Canvas.getSnappingPoints(canvas.props));
   }
 
   /**
@@ -787,12 +787,12 @@ export default class Picture {
       <Store
         componentId={"0"}
         editMode={this.editing} 
-        childType={RootGroup}
+        childType={Canvas}
         propStore={this.propStore}
         snappingStore={this.snappingStore}
         picture={this}
         handleEvent={this.handleEvent}>
-        <RootGroup>
+        <Canvas>
           {this._renderTreeChildren(this.children)}
           { 
             // Show SnapPoints only during editing
@@ -800,7 +800,7 @@ export default class Picture {
           {this.editing && (<SnapPoints
             snappingStore={this.snappingStore} 
             handleEvent={this.handleEvent}/>)}
-        </RootGroup>
+        </Canvas>
       </Store>
     );
   }

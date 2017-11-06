@@ -1,7 +1,7 @@
 import React from "react";
 import BasePage from "pages/BasePage";
 import Toolbar from "toolbar/Toolbar";
-import { RootGroup } from "components/GroupComponents";
+import Canvas from "components/GroupComponents";
 import EditableRectangle from "components/rect/Rectangle";
 import EventStore from "stores/EventStore";
 import OperationStore from "stores/OperationStore";
@@ -26,10 +26,12 @@ export default class EditorPage extends BasePage {
       props: {
         x: 0,
         y: 0,
-        width: 688,
-        height: 448,
-        translateX: 6,
-        translateY: 6
+        canvasWidth: 700,
+        canvasHeight: 460,
+        translateX: 20,
+        translateY: 20,
+        width: 660,
+        height: 420
       }
     });
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -47,19 +49,8 @@ export default class EditorPage extends BasePage {
   }
 
   componentDidMount() {
-    // let rect = React.findDOMNode(this).getBoundingClientRect();
-    // this.state.picture.init({
-    //   props: {
-    //     x: 0,
-    //     y: 0,
-    //     width: rect.width * 0.75,
-    //     height: rect.height * 0.8,
-    //     translateX: 6,
-    //     translateY: 6
-    //   }
-    // });
-    // this.forceUpdate();
-    this.state.picture.point = this.svg.createSVGPoint();
+    // Create an SVG point to transform point coords to native coordinates
+    // this.state.picture.point = this.svg.createSVGPoint();
   }
 
   // *********************************************************
@@ -95,7 +86,7 @@ export default class EditorPage extends BasePage {
               // For editing component properties
             }
             <PropertyPanel/>
-            <svg id="picture" ref={(svg) => this.svg = svg} className="svg-canvas" width={700} height={460}>
+            <svg id="picture" className="svg-canvas" width={700} height={460}>
               <filter id="bevel" filterUnits="objectBoundingBox" x="-10%" y="-10%" width="150%" height="150%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur">
                 </feGaussianBlur>

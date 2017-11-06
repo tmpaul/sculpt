@@ -117,20 +117,6 @@ export default class EditableRectangle extends BaseComponent {
           className={props.className}
           onClick={() => dispatch("SELECT")}
           onContextMenu={this.handleContextMenu}
-          onDragStart={({ origin }) => dispatch("CANVAS_DRAG_START", {
-            x: origin[0],
-            y: origin[1]
-          })}
-          onDrag={({ x, y, dx, dy }) => dispatch("CANVAS_DRAG_MOVE", {
-            x: props.x + dx,
-            y: props.y + dy,
-            deltaX: x,
-            deltaY: y
-          })}
-          onDragEnd={({ origin, x, y }) => dispatch("CANVAS_DRAG_END", {
-            x: origin[0] + x,
-            y: origin[1] + y
-          })}
           fill={props.mode === "guide" ? "transparent" : rectPropsObject.fill}
           stroke={props.mode === "guide" ? "cyan" : rectPropsObject.stroke}
           vectorEffect="non-scaling-stroke"
@@ -150,12 +136,6 @@ export default class EditableRectangle extends BaseComponent {
               y={point.y}
               mode={props.mode}
               selected={props.selected}
-              passThrough={op && op.operation === OperationStore.OPS.DRAW}
-              restrictX={point.restrictX}
-              restrictY={point.restrictY}
-              onDragStart={(args) => point.onDragStart(dispatch, args)}
-              onDrag={(args) => point.onDrag(dispatch, args)}
-              onDragEnd={(args) => point.onDragEnd(dispatch, args)}
             />
           );
         })}
