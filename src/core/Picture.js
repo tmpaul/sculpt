@@ -14,6 +14,7 @@ import EventStoreSingleton from "stores/EventStore";
 import OperationStoreSingleton from "stores/OperationStore";
 import { getComponentIdFromPointId, getPointNameFromPointId,
   getPointId, changePointId } from "utils/PointUtils";
+import { getTransformationMatrix } from "utils/TransformUtils";
 import { AbortStep } from "components/steps";
 import memoize from "memoizee";
 
@@ -106,6 +107,10 @@ export default class Picture {
   }
 
   debouncedPointSnap(event, selfPoint, step) {
+    if (event.debounced) {
+      return;
+    }
+    event.debounced = true;
     let point = this.snappingStore.getClosestSnappingPoint(event.payload.x, event.payload.y, function(pointId) {
       return selfPoint ? true : getComponentIdFromPointId(pointId) !== step.componentId;
     });
@@ -198,13 +203,19 @@ export default class Picture {
     if (!ROTATE_EVENTS[event.type]) {
       return;
     }
-    // Identify the component being modified. event.source is
-    // the id of the point
-    let componentId = getComponentIdFromPointId(event.source);
-    let info = this.propStore.getInfo(componentId);
     let currentStep = this.stepStore.getCurrentStep();
     let modified = false;
-    if (event.type === "CONTROL_POINT_DRAG_START") {
+    if (event.type === "CANVAS_DRAG_START") {
+      // Identify if the user clicked on a source point
+      let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
+          event.payload.y);
+      let componentId;
+      if (point && point.pointId) {
+        componentId = getComponentIdFromPointId(point.pointId);
+      } else {
+        return;
+      }
+      let info = this.propStore.getInfo(componentId);
       // If control point belongs to root component ignore.
       if (componentId === "0") {
         return;
@@ -216,6 +227,11 @@ export default class Picture {
 
         // Remove these snapping points from snappingStore!
         this.snappingStore.removeSnappingPoints(componentId);
+
+        // Assign values from the payload
+        event.payload.pointId = point.pointId;
+        event.payload.x = point.pointX;
+        event.payload.y = point.pointY;
 
         // Show snapping points
         this.snappingStore.show();
@@ -231,20 +247,24 @@ export default class Picture {
         // Freeze initialProps
         currentStep.initialProps = ObjectUtils.extend({}, info.props);
         currentStep.active = true;
+        currentStep.transformId = info.props.transforms.length;
         currentStep = this.runStep(currentStep, info);
         modified = true;
       }
     }
-    if (event.type === "CONTROL_POINT_DRAG_MOVE") {
+    if (event.type === "CANVAS_DRAG_MOVE") {
+      let info = this.propStore.getInfo(currentStep.componentId);
       if (currentStep.active) {
         currentStep = info.type.onRotate(this, this.stepStore.getCurrentStep(), event.payload);
         currentStep = this.runStep(currentStep, info);
         modified = true;
+        this.debouncedPointSnap(event, false, currentStep);
       }
     }
 
-    if (event.type === "CONTROL_POINT_DRAG_END") {
+    if (event.type === "CANVAS_DRAG_END") {
       if (currentStep.active) {
+        let info = this.propStore.getInfo(currentStep.componentId);
         // Remove these snapping points from snappingStore!
         this.snappingStore.removeSnappingPoints(currentStep.componentId);
         currentStep = info.type.onRotateEnd(this, this.stepStore.getCurrentStep(), event.payload);
@@ -329,6 +349,14 @@ export default class Picture {
     if (event.type === "CANVAS_DRAG_MOVE") {
       let info = this.propStore.getInfo(currentStep.componentId);
       if (currentStep.active) {
+        // Modify payload by applying transforms from actual coordinates to SVG coordinates
+        let dx = event.payload.deltaX, dy = event.payload.deltaY;
+        let matrix = getTransformationMatrix(info.props.transforms).inverse();
+        // let { x, y } = matrix.applyToPoint(currentStep.source.x, currentStep.source.y);
+        // let ox = x, oy = y;
+        // let n = matrix.applyToPoint(currentStep.source.x + event.payload.deltaX, currentStep.source.y + event.payload.deltaY);
+        event.payload.deltaX = dx * matrix.a + dy * matrix.c;
+        event.payload.deltaY = dx * matrix.b + dy * matrix.d;
         currentStep = info.type.onMove(this, this.stepStore.getCurrentStep(), event.payload);
         currentStep = this.runStep(currentStep, info);
         modified = true;
@@ -735,6 +763,7 @@ export default class Picture {
         handlerProp = "rotate";
         if (!step.active || step.loopIndex !== undefined) {
           step.initialProps = clone(info.props);
+          step.transformId = info.props.transforms.length;
           this.snappingStore.removeSnappingPoints(step.componentId);
         }
         if (step.source && step.source.pointId) {

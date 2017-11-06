@@ -33,11 +33,11 @@ export default (Component) => {
     componentDidMount() {
       let node = ReactDOM.findDOMNode(this);
       this.node = node;
-      var svg   = document.getElementsByTagName('svg');
+      let svg   = document.getElementsByTagName("svg");
       if (svg) {
         svg = svg[0];
-        var svgNS = svg.getAttribute('xmlns');
-        var pt    = svg.createSVGPoint();
+        let svgNS = svg.getAttribute("xmlns");
+        let pt    = svg.createSVGPoint();
         this.pt = pt;
       }
       DomEvents.on(node, "mousedown", this.handleMouseDown);

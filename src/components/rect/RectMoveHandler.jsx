@@ -2,6 +2,7 @@ import { ObjectUtils } from "utils/GenericUtils";
 import { detectSnapping, toSourcePoint, closestSelfControlPoint,
   getTransformedPoint,
   getPointNameFromPointId, getComponentIdFromPointId } from "utils/PointUtils";
+import { getTransformationMatrix } from "utils/TransformUtils";
 
 /**
  * Handle the start of a move operation
@@ -84,6 +85,11 @@ export function evaluateMoveStep(picture, info, step) {
       let targetInfo = picture.propStore.getInfo(getComponentIdFromPointId(step.target.pointId));
       targetPoint = targetInfo.type.getSnappingPoint(targetInfo.props,
         getPointNameFromPointId(step.target.pointId));
+      if (info.props.transforms && info.props.transforms.length) {
+        // Transform the targetPoint if there are any transforms.
+        targetPoint = getTransformationMatrix(info.props.transforms).inverse()
+          .applyToPoint(targetPoint.x, targetPoint.y);
+      }
     } else {
       // We are moving to some point (x, y). We need the coordinates of the original point.
       let originalSourcePoint = info.type.getSnappingPoint(step.initialProps, 
