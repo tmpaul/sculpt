@@ -55,20 +55,9 @@ export default class Canvas extends BaseComponent {
           fill="transparent"
           stroke="none"
           mode={null}
-          onDragStart={({ origin }) => this.handleEvent("CANVAS_DRAG_START", {
-            x: origin[0],
-            y: origin[1]
-          })}
-          onDrag={({ x, y, dx, dy }) => this.handleEvent("CANVAS_DRAG_MOVE", {
-            x: dx,
-            y: dy,
-            deltaX: x,
-            deltaY: y
-          })}
-          onDragEnd={({ origin, x, y }) => this.handleEvent("CANVAS_DRAG_END", {
-            x: origin[0] + x,
-            y: origin[1] + y
-          })}
+          onDragStart={this.handleDragStart}
+          onDrag={this.handleDrag}
+          onDragEnd={this.handleDragEnd}
         />
         <g transform={`translate(${this.props.translateX}, ${this.props.translateY})`}>
           {
@@ -91,14 +80,38 @@ export default class Canvas extends BaseComponent {
     );
   }
 
+  handleDragStart({ origin } = {}) {
+    this.handleEvent("CANVAS_DRAG_START", {
+      x: origin[0],
+      y: origin[1]
+    });
+  }
+
+  handleDrag({ origin, x, y, dx, dy } = {}) {
+    this.handleEvent("CANVAS_DRAG_MOVE", {
+      x: origin[0] + x,
+      y: origin[1] + y,
+      deltaX: x,
+      deltaY: y
+    });
+  }
+
+  handleDragEnd({ origin, x, y } = {}) {
+    this.handleEvent("CANVAS_DRAG_END", {
+      x: origin[0] + x,
+      y: origin[1] + y
+    });
+  }
+
   handleEvent(eventType, payload) {
-    if (eventType === "CANVAS_DRAG_START" || eventType === "CANVAS_DRAG_END") {
+    if (eventType === "CANVAS_DRAG_START" || eventType === "CANVAS_DRAG_END" || eventType === "CANVAS_DRAG_MOVE") {
       let { translateX, translateY, width, height } = this.props;
-      payload.x -= this.bbox.left;
-      payload.y -= this.bbox.top;
+      // payload.x -= this.bbox.left;
+      // payload.y -= this.bbox.top;
       payload.x = Math.max(translateX, Math.min(payload.x, width + translateX)) - translateX;
       payload.y = Math.max(translateY, Math.min(payload.y, height + translateY)) - translateY;
-    } else if (eventType === "CANVAS_DRAG_MOVE") {
+    }
+    if (eventType === "CANVAS_DRAG_MOVE") {
       let { width, height } = this.props;
       payload.deltaX = Math.min(payload.deltaX, width);
       payload.deltaY = Math.min(payload.deltaY, height);

@@ -7,18 +7,22 @@ import { detectSnapping, toSourcePoint, closestSelfControlPoint,
  * Handle the start of a move operation
  * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The move step
- * @param  {Number} options.x The x coordinate of the point where user clicked in the canvas
- * @param  {Number} options.y The y coordinate of the point where user clicked in the canvas
+ * @param  {String} options.pointId        The id of the point that user clicked on
  * @return {Object} The updated step
  */
-export function onMoveStart(picture, step, { x, y }) {
+export function onMoveStart(picture, step, { pointId }) {
   // Find the snapping point on the rectangle that closely matches (x, y)
   step.deltaX = 0;
   step.deltaY = 0;
   let info = picture.propStore.getInfo(step.componentId);
-  let controlPoint = closestSelfControlPoint(info.type, info.props, { x, y });
-  // Get the corresponding snap point version
-  step.source = toSourcePoint(step.componentId, controlPoint);
+  // Get the corresponding snap point version so that we know its x,y coords in
+  // the transformed space
+  let snapPoint = info.type.getSnappingPoint(info.props, getPointNameFromPointId(pointId));
+  step.source = {
+    pointId,
+    x: snapPoint.x,
+    y: snapPoint.y
+  };
   return step;
 }
 
@@ -28,19 +32,28 @@ export function onMoveStart(picture, step, { x, y }) {
  * @param  {Object} step           The move step
  * @param  {Number} options.deltaX The delta x movement of the control point
  * @param  {Number} options.deltaY The delta y movement of the control point
+ * @param  {String} options.pointId Optional pointId of a point that user moved to
  * @return {Object} The updated step
  */
-export function onMove(picture, step, { deltaX, deltaY }) {
+export function onMove(picture, step, { deltaX, deltaY, pointId }) {
   // Move from step's source deltaX units horizontally and deltaY units vertically
   if (step.source && step.source.pointId) {
-    // The following will give the x, y coordinates of rectangle after movement!
-    step.target = {
-      x: step.source.x + deltaX,
-      y: step.source.y + deltaY
-    };
-    step.deltaX = deltaX;
-    step.deltaY = deltaY;
+    if (pointId) {
+      step.target = {
+        pointId
+      };
+      return step;
+    } else {
+      // The following will give the x, y coordinates of rectangle after movement!
+      step.target = {
+        x: step.source.x + deltaX,
+        y: step.source.y + deltaY
+      };
+      step.deltaX = deltaX;
+      step.deltaY = deltaY;
+    }
   }
+  step.target.pointId = pointId;
   return step;
 };
 
@@ -48,19 +61,13 @@ export function onMove(picture, step, { deltaX, deltaY }) {
  * Handle the movement end event
  * @param  {Object} picture   The picture we are drawing
  * @param  {Object} step      The move step
- * @param  {Number} options.x The x coordinate of the mouse pointer relative to canvas
- * @param  {Number} options.y The y coordinate of the mouse pointer relative to canvas
+ * @param  {String} options.pointId Optional pointId of a point that user moved to
  * @return {Object} The updated step
  */
-export function onMoveEnd(picture, step, { x, y }) {
-  // Find out the matrix of the node being modified. We will use
-  // data-sculpt-id to select the rect. For the actual drawing,
-  // the calculated matrix will be stored on step
-  let node = document.querySelector(`[data-sculpt-id="${step.componentId}"]`);
-  let matrix = node.getCTM();
-  let txPt = getTransformedPoint(picture, matrix, { x, y });
-  // Detect snapping now
-  step.target = detectSnapping(picture.snappingStore, txPt);
+export function onMoveEnd(picture, step, { pointId }) {
+  if (pointId) {
+    step.target.pointId = pointId;
+  }
   return step;
 };
 

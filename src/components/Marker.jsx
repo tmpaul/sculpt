@@ -41,7 +41,7 @@ function getMarkerProps(props) {
     guideMode(props),
     selectedState(props),
     {
-      pointerEvents: props.passThrough ? "none" : "auto"
+      pointerEvents: "none"
     }
   );
 }

@@ -74,7 +74,7 @@ export default (Component) => {
 
     handleMouseMove(e) {
       let { restrictX, restrictY } = this.props;
-      let x =  e.clientX, y = e.clientY;
+      let x =  e.offsetX, y = e.offsetY;
       if (this.mat && !this.props.noMatrix) {
         this.pt.x = x;
         this.pt.y = y;
@@ -96,6 +96,7 @@ export default (Component) => {
         // Callback only if diff has changed.
         if((this.state.x !== (x - this.state.dragOriginX)) || (y !== (e.clientY - this.state.dragOriginY))) {
           this.props.onDrag({
+            origin: [ this.state.dragOriginX, this.state.dragOriginY ],
             x: this.state.x,
             y: this.state.y,
             dx: (restrictX) ? 0 : ((x - this.state.dragOriginX) - this.state.x),
@@ -120,7 +121,7 @@ export default (Component) => {
       }
       if(!this.state.dragstart) {
         DomEvents.pauseEvent(e);
-        let x = e.clientX, y = e.clientY;
+        let x = e.offsetX, y = e.offsetY;
         if (this.node.getCTM && !this.props.noMatrix) {
           let mat = this.node.getCTM().inverse();
           this.mat = mat;

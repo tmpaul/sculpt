@@ -8,11 +8,15 @@ import { detectSnapping, syncPoint } from "utils/PointUtils";
  * @param  {Object} step                   The draw step
  * @param  {Number} options.x              The start point x coordinate
  * @param  {Number} options.y              The start point y coordinate
+ * @param  {String} options.pointId        Optional string id of a point that the user clicked on
  * @return {Object} step                   The updated step
  */
-export function onDrawStart(picture, step, { x, y } = {}) {
-  // Find the point from picture.snappingStore
-  step.source = detectSnapping(picture.snappingStore, { x, y });
+export function onDrawStart(picture, step, { x, y, pointId } = {}) {
+  step.source = {
+    x,
+    y,
+    pointId
+  };
   return step;
 }
 
@@ -22,16 +26,17 @@ export function onDrawStart(picture, step, { x, y } = {}) {
  * @param  {Object} step                   The draw step
  * @param  {Number} options.deltaX         The delta x of mouse cursor
  * @param  {Number} options.deltaY         The delta y of mouse cursor
+ * @param  {String} options.pointId        The id of the point user is drawing close to
  * @return {Object} step                   The updated step
  */
-export function onDraw(picture, step, { deltaX, deltaY }) {
+export function onDraw(picture, step, { deltaX, deltaY, pointId }) {
   // deltaX and deltaY take care helps us figure out the direction of drag. The direction
   // can change during movement, e.g -deltaX means the source point is different.
-  let point;
   step.deltaX = deltaX;
   step.deltaY = deltaY;
   // The final point
   step.target = {
+    pointId,
     x: step.source.x + deltaX,
     y: step.source.y + deltaY
   };
@@ -44,9 +49,10 @@ export function onDraw(picture, step, { deltaX, deltaY }) {
  * @param  {Object} step           The draw step
  * @param  {Number} options.x      The x point
  * @param  {Number} options.y      The y point
+ * @param  {String} options.pointId        The id of the point user is drawing close to
  * @return {Object} step           The updated step
  */
-export function onDrawEnd(picture, step, { x, y } = {}) {
+export function onDrawEnd(picture, step, { x, y, pointId } = {}) {
   if (step.deltaX === undefined && step.deltaY === undefined) {
     // Abort the draw operation. We do not have a target point.
     return AbortStep;
@@ -54,10 +60,11 @@ export function onDrawEnd(picture, step, { x, y } = {}) {
   step.deltaX = x - step.source.x;
   step.deltaY = y - step.source.y;
   // Attempt to detect snapping
-  step.target = detectSnapping(picture.snappingStore, {
+  step.target = {
     x,
-    y
-  });
+    y,
+    pointId
+  };
   return step;
 }
 

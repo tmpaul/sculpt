@@ -35,38 +35,13 @@ export default class SnapPoints extends BaseComponent {
         {this.state.highlight && (<SnapCross
           x={this.state.highlight.pointX}
           y={this.state.highlight.pointY}
-          height={35}
-          width={35}
+          height={40}
+          width={40}
         />)}
         {this.state.points.map((point, i) => {
           return (<ControlPoint key={i}
             x={point.pointX}
             y={point.pointY}
-            onDragStart={() => this.props.handleEvent({
-              type: "CONTROL_POINT_DRAG_START",
-              source: point.pointId,
-              payload: {
-                x: point.pointX,
-                y: point.pointY
-              }
-            })}
-            onDrag={({ x, y }) => this.props.handleEvent({
-              type: "CONTROL_POINT_DRAG_MOVE",
-              source: point.pointId,
-              payload: {
-                deltaX: x,
-                deltaY: y
-              }
-            })}
-            onDragEnd={({ x, y }) => this.props.handleEvent({
-              type: "CONTROL_POINT_DRAG_END",
-              source: point.pointId,
-              payload: {
-                x: point.pointX + x,
-                y: point.pointY + y
-              }
-            })}
-            passThrough={op && op.operation === OperationStore.OPS.DRAW}
             mode="snap"
           />);
         })}
@@ -80,16 +55,19 @@ export default class SnapPoints extends BaseComponent {
       this.setState({
         points: payload
       });
-    } else if (event === "HIDE_SNAP_POINTS") {
+    }
+    if (event === "HIDE_SNAP_POINTS") {
       this.setState({
         points: [],
         highlight: null
       });
-    } else if (event === "HIGHLIGHT_SNAP_POINT") {
+    }
+    if (event === "HIGHLIGHT_SNAP_POINT") {
       this.setState({
-        highlight: payload
+        highlight: this.state.points.length ? payload : null
       });
-    } else if (event === "UNHIGHLIGHT_SNAP_POINT") {
+    }
+    if (event === "UNHIGHLIGHT_SNAP_POINT") {
       this.setState({
         highlight: null
       });

@@ -115,10 +115,11 @@ export default class EditableRectangle extends BaseComponent {
         <DraggableRect {...rectPropsObject}
           data-sculpt-id={props.componentId}
           className={props.className}
-          onClick={() => dispatch("SELECT")}
+          onClick={(e) => dispatch("SELECT")}
           onContextMenu={this.handleContextMenu}
           fill={props.mode === "guide" ? "transparent" : rectPropsObject.fill}
           stroke={props.mode === "guide" ? "cyan" : rectPropsObject.stroke}
+          pointerEvents={(op && op.operation) ? "none" : "auto"}
           vectorEffect="non-scaling-stroke"
           style={props.style}
         />
