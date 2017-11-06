@@ -201,8 +201,8 @@ export default class Picture {
         }, event.payload);
         // Freeze initialProps
         currentStep.initialProps = ObjectUtils.extend({}, info.props);
-        currentStep = this.runStep(currentStep, info);
         currentStep.active = true;
+        currentStep = this.runStep(currentStep, info);
         modified = true;
       }
     }
@@ -491,7 +491,7 @@ export default class Picture {
       id: componentId,
       name: name || targetType.displayName + (count + 1),
       type: targetType,
-      props: ObjectUtils.extend({}, targetType.defaultProps, initialProps || {})
+      props: ObjectUtils.extend({}, clone(targetType.defaultProps), initialProps || {})
     });
     this.children.push(componentId);
     return componentId;

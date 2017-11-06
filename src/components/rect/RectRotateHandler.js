@@ -30,6 +30,7 @@ export function onRotateStart(picture, step, { x, y }) {
   step.rotateAngle = 0;
   step.rotateCenter = null;
   let info = picture.propStore.getInfo(step.componentId);
+  step.transformId = info.props.transforms.length;
   let controlPoint = closestSelfControlPoint(info.type, info.props, { x, y });
   // Get the corresponding snap point version
   step.source = toSourcePoint(step.componentId, controlPoint);
@@ -83,22 +84,16 @@ export function onRotate(picture, step, { deltaX, deltaY }) {
 
     // We need to adjust the angle's sign based on position of new
     // targetPoint relative to old targetPoint.
-    
-    // // Reflect source point around target point
-    // let reflectedSourcePoint = reflectPoint(sourcePoint, targetPoint);
-    // // Find the quadrant based on deltaX and deltaY with coordinate
-    // // axes aligned along reflected line and its perpendicular line.
-    // let quadrant = findQuadrant(mousePoint, );
     // Get the sign by evaluating the position of mouse pointer about line
     let sign = (mousePoint.x - targetPoint.x) * (sourcePoint.y - targetPoint.y) -
       (mousePoint.y - targetPoint.y) * (sourcePoint.x - targetPoint.x);
 
-   if (step.angle > Math.PI / 2 && sign > 0) {
+    if (step.angle > Math.PI / 2 && sign > 0) {
       step.angle = 2 * Math.PI - step.angle;
-   }
-   if (step.angle < Math.PI / 2 && sign > 0) {
+    }
+    if (step.angle < Math.PI / 2 && sign > 0) {
       step.angle = -step.angle;
-   }
+    }
   }
   return step;
 };
@@ -131,25 +126,30 @@ export function evaluateRotateStep(picture, info, step) {
   let sourcePoint, targetPoint, angle = step.angle || 0;
   if (step.target.pointId) {
     if (step.source && step.source.pointId) {
-      angle = step.angle * 180 / Math.PI;
+      angle = angle * 180 / Math.PI;
     }
-
     if (angle === undefined) {
       return;
     }
-    // Figure out which point we are rotating about (i.e target point name)
     let targetPointName = getPointNameFromPointId(step.target.pointId);
     let props = info.props;
     let rotationPoint = info.type.getSnappingPoint(info.props, targetPointName);
-    return {
+    let transforms = props.transforms;
+    // Check if the last element
+    transforms[step.transformId] = {
+      type: "rotate",
       rotation: angle,
       rotateX: rotationPoint.x,
       rotateY: rotationPoint.y
     };
+    return {
+      transforms
+    };
   }
 }
 
-export function getRotationStepSlots(info, sourcePoint, targetPoint) {
+export function getRotationStepSlots(info, step) {
+  let rotation = (info.props.transforms[step.transformId] || {}).rotation || 0;
   let slots = [ {
     type: "text",
     value: "Rotate"
@@ -161,13 +161,13 @@ export function getRotationStepSlots(info, sourcePoint, targetPoint) {
     value: "about"
   }, {
     type: "point",
-    value: targetPoint
+    value: step.target
   }, {
     type: "text",
     value: "by"
   }, {
     type: "text",
-    value: (info.props.rotation || 0).toFixed(2) + " degrees"
+    value: (rotation).toFixed(2) + " degrees"
   } ];
   return slots;
 };

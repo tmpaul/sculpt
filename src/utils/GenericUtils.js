@@ -45,6 +45,8 @@ export function debounce(func, wait, immediate) {
 
 class ObjectUtilsConstructor {
 
+  static dontMerge = (destination, source) => source;
+
   constructor() {
     this.NOOP = function() {};
   }
@@ -68,7 +70,8 @@ class ObjectUtilsConstructor {
 
   extend(object, ...overrides) {
     return merge.all([ object ].concat(overrides).filter(Boolean), {
-      clone: true
+      clone: true,
+      arrayMerge: ObjectUtilsConstructor.dontMerge
     });
   }
 

@@ -71,6 +71,7 @@
     "react-color": "^2.13.8",
     "react-dom": "^15.4.2",
     "react-router": "3.0.0",
-    "svg-intersections": "^0.3.1"
+    "svg-intersections": "^0.3.1",
+    "transformation-matrix-js": "^2.7.1"
   }
 }

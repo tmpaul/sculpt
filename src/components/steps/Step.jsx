@@ -46,7 +46,7 @@ export default function Step(props) {
   let source = step.source;
   let target = step.target;
   // The editable portions and text come from the component itself
-  let slots = props.getSlots(info, source, target, step);
+  let slots = props.getSlots(info, step);
   if (props.single) {
     slots = (<span>{slots.map((s) => getSlotValue(s, props)).join(" ")}</span>);
   } else {

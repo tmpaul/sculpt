@@ -1,5 +1,6 @@
 import { ObjectUtils } from "utils/GenericUtils";
-import { detectSnapping, toSourcePoint, closestSelfControlPoint, 
+import { detectSnapping, toSourcePoint, closestSelfControlPoint,
+  getTransformedPoint,
   getPointNameFromPointId, getComponentIdFromPointId } from "utils/PointUtils";
 
 /**
@@ -147,7 +148,9 @@ export function evaluateMoveStep(picture, info, step) {
   }
 }
 
-export function getMovingStepSlots(info, sourcePoint, targetPoint) {
+export function getMovingStepSlots(info, step) {
+  let sourcePoint = step.source;
+  let targetPoint = step.target;
   let slots = [ {
     type: "text",
     value: "Move"

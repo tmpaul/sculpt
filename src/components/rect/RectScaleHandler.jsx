@@ -191,7 +191,9 @@ export function evaluateScaleStep(picture, info, step) {
   }
 };
 
-export function getScalingStepSlots(info, sourcePoint, targetPoint, step) {
+export function getScalingStepSlots(info, step) {
+  let sourcePoint = step.source;
+  let targetPoint = step.target;
   let slots = [ {
     type: "text",
     value: "Scale"

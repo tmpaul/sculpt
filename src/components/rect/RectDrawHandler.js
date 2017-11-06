@@ -138,7 +138,9 @@ export function evaluateDrawStep(picture, info, step) {
   }
 }
 
-export function getDrawingStepSlots(info, sourcePoint, targetPoint) {
+export function getDrawingStepSlots(info, step) {
+  let sourcePoint = step.source;
+  let targetPoint = step.target;
   let slots = [ {
     type: "text",
     value: "Draw"
