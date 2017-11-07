@@ -21,12 +21,10 @@ const distance = (pt1, pt2) => Math.sqrt(Math.pow(pt1.x - pt2.x, 2) + Math.pow(p
  * Handle the start of a rotate operation
  * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The move step
- * @param  {Number} options.x The x coordinate of the point where user clicked in the canvas
- * @param  {Number} options.y The y coordinate of the point where user clicked in the canvas
- * @param  {String} pointId   The id of the point that the user clicked on
+ * @param  {String} options.pointId        The id of the point that user clicked on
  * @return {Object} The updated step
  */
-export function onRotateStart(picture, step, { x, y, pointId }) {
+export function onRotateStart(picture, step, { pointId }) {
   // Find the snapping point on the rectangle that closely matches (x, y)
   step.rotateAngle = 0;
   step.rotateCenter = null;
@@ -154,7 +152,7 @@ export function evaluateRotateStep(picture, info, step) {
 }
 
 export function getRotationStepSlots(info, step) {
-  let rotation = (info.props.transforms[step.transformId] || {}).rotation || 0;
+  let rotation = ((info.props.transforms || [])[step.transformId] || {}).rotation || 0;
   let slots = [ {
     type: "text",
     value: "Rotate"

@@ -12,26 +12,23 @@ const opposite = {
  * Handle the start of a scale operation
  * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The scale step
- * @param  {Number} options.x The x coordinate of the point where user clicked in the canvas
- * @param  {Number} options.y The y coordinate of the point where user clicked in the canvas
+ * @param  {String} pointId                The id of the point the user clicked on
  * @return {Object} The updated step
  */
-export function onScaleStart(picture, step, { x, y }) {
+export function onScaleStart(picture, step, { pointId }) {
   // Find the snapping point on the rectangle that closely matches (x, y)
   let info = picture.propStore.getInfo(step.componentId);
-  let controlPoint = closestSelfControlPoint(info.type, info.props, { x, y });
-  // Get the corresponding snap point version
-  step.source = toSourcePoint(step.componentId, controlPoint);
-  if (step.source && step.source.pointId) {
-    let pointName = getPointNameFromPointId(step.source.pointId);
-    let otherPoint = pointName.split(" ").map((d) => opposite[d] || d).join(" ");
-    let pt = info.type.getSnappingPoint(info.props, otherPoint);
-    step.target = {
-      pointId: picture.snappingStore.getPointId(step.componentId, otherPoint),
-      x: pt.x,
-      y: pt.y
-    };
-  }
+  // Get the corresponding snap point version so that we know its x,y coords in
+  // the transformed space
+  let snapPoint = info.type.getSnappingPoint(info.props, getPointNameFromPointId(pointId));
+  /*
+    Terminology: `source` is the point being moved/scaled.
+   */
+  step.source = {
+    pointId,
+    x: snapPoint.x,
+    y: snapPoint.y
+  };
   return step;
 };
 
@@ -41,16 +38,32 @@ export function onScaleStart(picture, step, { x, y }) {
  * @param  {Object} step           The scale step
  * @param  {Number} options.deltaX The delta x movement of the control point
  * @param  {Number} options.deltaY The delta y movement of the control point
+ * @param  {String} pointId        Optional id of the point user moved to
  * @return {Object} The updated step
  */
-export function onScale(picture, step, { deltaX, deltaY }) {
+export function onScale(picture, step, { deltaX, deltaY, pointId }) {
   let scaleX, scaleY;
-  if (step.source.pointId && step.target.pointId) {
+  // If pointId differs from the one set on scale start, the user moved to a 
+  // point and would like the rectangle to get scaled by an amount that would
+  // make it reach the target point, instead of specifying an explicit number.
+  if (pointId) {
+    step.target = {
+      pointId
+    };
+    step.scaleX = undefined;
+    step.scaleY = undefined;
+    return step;
+  }
+  // Otherwise just scale normally
+  if (step.source.pointId) {
+    step.target = {
+      x: step.source.x + deltaX,
+      y: step.source.y + deltaY
+    };
     // Original w, h
     let originalWidth = Math.abs(step.initialProps.width);
     let originalHeight = Math.abs(step.initialProps.height);
     let newWidth, newHeight;
-
     let sourcePointName = getPointNameFromPointId(step.source.pointId);
     // For each pointName
     if (sourcePointName === "top left") {
@@ -58,25 +71,24 @@ export function onScale(picture, step, { deltaX, deltaY }) {
       newHeight = Math.max(originalHeight - deltaY, 0);
     } else if (sourcePointName === "top mid") {
       // Vertically scale
-      newHeight = Math.max(step.target.y - step.source.y - deltaY, 0);
+      newHeight = Math.max(originalHeight - deltaY, 0);
     } else if (sourcePointName === "top right") {
-      // deltaX is negative
-      newWidth = Math.max(step.source.x + deltaX - step.target.x, 0);
-      newHeight = Math.max(step.target.y - deltaY - step.source.y, 0);
+      newWidth = Math.max(originalWidth + deltaX, 0);
+      newHeight = Math.max(originalHeight - deltaY, 0);
     } else if (sourcePointName === "mid right") {
-      newWidth = Math.max(step.source.x + deltaX - step.target.x, 0);
+      newWidth = Math.max(originalWidth + deltaX, 0);
     } else if (sourcePointName === "bottom right") {
-      newWidth = Math.max((step.source.x + deltaX - step.target.x), 0);
-      newHeight = Math.max((step.source.y - step.target.y + deltaY), 0);
+      newWidth = Math.max((originalWidth + deltaX), 0);
+      newHeight = Math.max((originalHeight + deltaY), 0);
     } else if (sourcePointName === "bottom mid") {
-      newHeight = Math.max((step.source.y + deltaY - step.target.y), 0);
+      newHeight = Math.max((originalHeight + deltaY), 0);
     } else if (sourcePointName === "bottom left") {
       // deltaX is positive, deltaY is negative
       newWidth = Math.max((originalWidth - deltaX), 0);
       newHeight = Math.max((originalHeight + deltaY), 0);
     } else if (sourcePointName === "mid left") {
       // deltaX is positive
-      newWidth = Math.max((step.target.x - step.source.x - deltaX), 0);
+      newWidth = Math.max((originalWidth - deltaX), 0);
     }
 
     if (newWidth !== undefined) {
@@ -97,15 +109,15 @@ export function onScale(picture, step, { deltaX, deltaY }) {
  * Handle the scale end event
  * @param  {Object} picture   The picture we are drawing
  * @param  {Object} step      The move step
- * @param  {Number} options.x The x coordinate of the mouse pointer relative to canvas
- * @param  {Number} options.y The y coordinate of the mouse pointer relative to canvas
+ * @param  {String} pointId   The id of the point that the user moved to.
  * @return {Object} The updated step
  */
-export function onScaleEnd(picture, step, { x, y } = {}) {
-  // TODO: Tharun Handle the case of scale `until` a point, and also
-  // scale until the dragged point meets a surface (i.e the intersection point with canvas
-  // edges, line edges, rectangle edges etc.). So each drawing exposes points as well as edges (as line
-  // segments.)
+export function onScaleEnd(picture, step, { pointId } = {}) {
+  if (pointId) {
+    step.target = {
+      pointId
+    };
+  }
   return step;
 };
 
@@ -119,75 +131,72 @@ export function onScaleEnd(picture, step, { x, y } = {}) {
  */
 export function evaluateScaleStep(picture, info, step) {
   // Find out the scale start point
-  if (step && step.source.pointId) {
-    let pointId = step.source.pointId;
-    let name = getPointNameFromPointId(pointId);
-    let scaleX = step.scaleX === undefined ? 1 : step.scaleX;
-    let scaleY = step.scaleY === undefined ? 1 : step.scaleY;
-    let sourcePoint, targetPoint;
-    let source = step.source;
-    if (source.pointId) {
-      // Then get the x and y coordinates from picture.snappingStore.
-      let sourceInfo = picture.propStore.getInfo(getComponentIdFromPointId(source.pointId));
-      sourcePoint = sourceInfo.type.getSnappingPoint(sourceInfo.props, getPointNameFromPointId(source.pointId));
-    } else {
-      sourcePoint = source;
-    }
-    let target = step.target;
-    if (target) {
-      if (target.pointId) {
-        let targetInfo = picture.propStore.getInfo(getComponentIdFromPointId(target.pointId));
-        targetPoint = targetInfo.type.getSnappingPoint(targetInfo.props, getPointNameFromPointId(target.pointId));
-      } else {
-        targetPoint = target;
-      }
-    } else {
-      targetPoint = sourcePoint;
-    }
-    if (name === "bottom right") {
-      return {
-        width: step.initialProps.width * scaleX,
-        height: step.initialProps.height * scaleY
-      };
-    } else if (name === "mid right") {
-      // Scale width using initialProps.width
-      return {
-        width: step.initialProps.width * scaleX
-      };
-    } else if (name === "top right") {
-      return {
-        y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
-        height: step.initialProps.height * scaleY, 
-        width: step.initialProps.width * scaleX
-      };
-    } else if (name === "top mid") {
-      return {
-        y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
-        height: step.initialProps.height * scaleY
-      };
-    } else if (name === "top left") {
-      return {
-        x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
-        y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
-        height: step.initialProps.height * scaleY,
-        width: step.initialProps.width * scaleX
-      };
-    } else if (name === "mid left") {
-      return {
-        width: step.initialProps.width * scaleX,
-        x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
-      };
-    } else if (name === "bottom left") {
-      return {
-        x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
-        width: step.initialProps.width * scaleX,
-        height: step.initialProps.height * scaleY
-      };
-    } else if (name === "bottom mid") {
-      return {
-        height: step.initialProps.height * scaleY
-      };
-    }
+  let source = step.source;
+  let scaleX, scaleY;
+  let sourcePointName = getPointNameFromPointId(source.pointId);
+  // Find out the name of the point we are scaling about
+  let name = sourcePointName;
+  let targetPoint;
+  if (step.target && step.target.pointId) {
+    // The user wants us to move such that scale is automatically set.
+    let targetInfo = picture.propStore.getInfo(getComponentIdFromPointId(step.target.pointId));
+    // Convert the normal coordinates into the current SVG coordinate space
+    targetPoint = targetInfo.type.getSnappingPoint(targetInfo.props, getPointNameFromPointId(step.target.pointId));
+  }
+  if (targetPoint) {
+    let aboutPointName = sourcePointName.split(" ").map((d) => opposite[d] || d).join(" ");
+    // Get the point we are scaling about
+    let aboutPoint = info.type.getSnappingPoint(info.props, aboutPointName);
+    scaleX = Math.abs(aboutPoint.x - targetPoint.x) / step.initialProps.width;
+    scaleY = Math.abs(aboutPoint.y - targetPoint.y) / step.initialProps.height;
+  } else {
+    // There is no target point use scaleX, scaleY
+    scaleX = step.scaleX || 1;
+    scaleY = step.scaleY || 1;
+  }
+  if (name === "bottom right") {
+    return {
+      width: step.initialProps.width * scaleX,
+      height: step.initialProps.height * scaleY
+    };
+  } else if (name === "mid right") {
+    // Scale width using initialProps.width
+    return {
+      width: step.initialProps.width * scaleX
+    };
+  } else if (name === "top right") {
+    return {
+      y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
+      height: step.initialProps.height * scaleY, 
+      width: step.initialProps.width * scaleX
+    };
+  } else if (name === "top mid") {
+    return {
+      y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
+      height: step.initialProps.height * scaleY
+    };
+  } else if (name === "top left") {
+    return {
+      x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
+      y: (step.initialProps.y) + (1 - scaleY) * step.initialProps.height,
+      height: step.initialProps.height * scaleY,
+      width: step.initialProps.width * scaleX
+    };
+  } else if (name === "mid left") {
+    return {
+      width: step.initialProps.width * scaleX,
+      x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
+    };
+  } else if (name === "bottom left") {
+    return {
+      x: (step.initialProps.x) + (1 - scaleX) * step.initialProps.width,
+      width: step.initialProps.width * scaleX,
+      height: step.initialProps.height * scaleY
+    };
+  } else if (name === "bottom mid") {
+    return {
+      height: step.initialProps.height * scaleY
+    };
   }
 };
 
@@ -198,42 +207,43 @@ export function getScalingStepSlots(info, step) {
     type: "text",
     value: "Scale"
   }, {
-    type: "text",
-    value: info.name
+    type: "point",
+    value: sourcePoint
   } ];
 
-  if (targetPoint.pointId !== undefined) {
+  if (targetPoint && targetPoint.pointId !== undefined) {
     // so that sourcePoint meets targetPoint!
     slots = slots.concat([ {
       type: "text",
-      value: "about"
+      value: "such that it meets"
     }, {
       type: "point",
       value: targetPoint
-    }, {
-      type: "text",
-      value: "by"
     } ]);
-  }
-
-  if (step.scaleX !== undefined) {
+  } else {
     slots.push({
       type: "text",
-      value: (step.scaleX).toFixed(3)
+      value: "by"
     });
-  }
-
-  if (step.scaleY !== undefined) {
     if (step.scaleX !== undefined) {
       slots.push({
         type: "text",
-        value: ","
+        value: (step.scaleX).toFixed(3)
       });
     }
-    slots.push({
-      type: "text",
-      value: (step.scaleY).toFixed(3)
-    });
+
+    if (step.scaleY !== undefined) {
+      if (step.scaleX !== undefined) {
+        slots.push({
+          type: "text",
+          value: ","
+        });
+      }
+      slots.push({
+        type: "text",
+        value: (step.scaleY).toFixed(3)
+      });
+    }
   }
   return slots;
 };

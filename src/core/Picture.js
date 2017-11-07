@@ -123,6 +123,16 @@ export default class Picture {
     }
   }
 
+  getSelectedComponentIds() {
+    let selectedIds = [];
+    this.propStore.iterate((id, componentInfo) => {
+      if (this.propStore.isSelected(id)) {
+        selectedIds.push(id);
+      }
+    });
+    return selectedIds;
+  }
+
   /**
    * Handle events that `draw` a component into the canvas
    * @param  {Object} event         The event object
@@ -135,7 +145,8 @@ export default class Picture {
       this.stepStore.nextStep();
       // Show snapping points!
       this.snappingStore.show();
-      // Find out if there is a point close to event coords
+      let selectedIds = this.getSelectedComponentIds();
+      // Find out if there is a point close to event coords, which is selected
       let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
         event.payload.y);
       if (point && point.pointId) {
@@ -210,9 +221,12 @@ export default class Picture {
     let currentStep = this.stepStore.getCurrentStep();
     let modified = false;
     if (event.type === "CANVAS_DRAG_START") {
+      let selectedIds = this.getSelectedComponentIds();
       // Identify if the user clicked on a source point
       let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
-          event.payload.y);
+        event.payload.y, function(pointId) {
+          return selectedIds.indexOf(getComponentIdFromPointId(pointId)) >= 0;
+        });
       let componentId;
       if (point && point.pointId) {
         componentId = getComponentIdFromPointId(point.pointId);
@@ -259,6 +273,11 @@ export default class Picture {
     if (event.type === "CANVAS_DRAG_MOVE") {
       let info = this.propStore.getInfo(currentStep.componentId);
       if (currentStep.active) {
+        let dx = event.payload.deltaX;
+        let dy = event.payload.deltaY;
+        let matrix = getTransformationMatrix(info.props.transforms).inverse();
+        event.payload.deltaX = dx * matrix.a + dy * matrix.c;
+        event.payload.deltaY = dx * matrix.b + dy * matrix.d;
         currentStep = info.type.onRotate(this, this.stepStore.getCurrentStep(), event.payload);
         currentStep = this.runStep(currentStep, info);
         modified = true;
@@ -306,9 +325,12 @@ export default class Picture {
     let currentStep = this.stepStore.getCurrentStep();
     let modified = false;
     if (event.type === "CANVAS_DRAG_START") {
+      let selectedIds = this.getSelectedComponentIds();
       // Identify if the user clicked on a source point
       let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
-          event.payload.y);
+        event.payload.y, function(pointId) {
+          return selectedIds.indexOf(getComponentIdFromPointId(pointId)) >= 0;
+        });
       let componentId;
       if (point && point.pointId) {
         componentId = getComponentIdFromPointId(point.pointId);
@@ -351,8 +373,8 @@ export default class Picture {
       }
     }
     if (event.type === "CANVAS_DRAG_MOVE") {
-      let info = this.propStore.getInfo(currentStep.componentId);
       if (currentStep.active) {
+        let info = this.propStore.getInfo(currentStep.componentId);
         // Modify payload by applying transforms from actual coordinates to SVG coordinates
         let dx = event.payload.deltaX, dy = event.payload.deltaY;
         let matrix = getTransformationMatrix(info.props.transforms).inverse();
@@ -383,7 +405,8 @@ export default class Picture {
         modified = true;
         // Set snapping points
         info = this.propStore.getInfo(currentStep.componentId);
-        this.snappingStore.setSnappingPoints(currentStep.componentId, info.type.getSnappingPoints(info.props));
+        this.snappingStore.setSnappingPoints(currentStep.componentId, 
+          info.type.getSnappingPoints(info.props));
         this.snappingStore.hide();
         // Clear the operation store
         OperationStoreSingleton.clear();
@@ -397,19 +420,29 @@ export default class Picture {
   handleScaling(event) {
     // Return early if event does not match any of these events
     const SCALE_EVENTS = {
-      "CONTROL_POINT_DRAG_START": true,
-      "CONTROL_POINT_DRAG_MOVE": true,
-      "CONTROL_POINT_DRAG_END": true
+      "CANVAS_DRAG_START": true,
+      "CANVAS_DRAG_MOVE": true,
+      "CANVAS_DRAG_END": true
     };
     if (!SCALE_EVENTS[event.type]) {
       return;
     }
-    // Identify the component being modified.
-    let componentId = getComponentIdFromPointId(event.source);
-    let info = this.propStore.getInfo(componentId);
     let currentStep = this.stepStore.getCurrentStep();
     let modified = false;
-    if (event.type === "CONTROL_POINT_DRAG_START") {
+    if (event.type === "CANVAS_DRAG_START") {
+      let selectedIds = this.getSelectedComponentIds();
+      // Identify if the user clicked on a source point
+      let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
+        event.payload.y, function(pointId) {
+          return selectedIds.indexOf(getComponentIdFromPointId(pointId)) >= 0;
+        });
+      let componentId;
+      if (point && point.pointId) {
+        componentId = getComponentIdFromPointId(point.pointId);
+      } else {
+        return;
+      }
+      let info = this.propStore.getInfo(componentId);
       // If control point belongs to root component ignore
       if (componentId === "0") {
         return;
@@ -424,6 +457,11 @@ export default class Picture {
         // Show snapping points
         this.snappingStore.show();
 
+        // Assign values from the payload
+        event.payload.pointId = point.pointId;
+        event.payload.x = point.pointX;
+        event.payload.y = point.pointY;
+
         // Call the move start handler
         currentStep = info.type.onScaleStart(this, {
           type: "SCALE",
@@ -435,21 +473,36 @@ export default class Picture {
         }, event.payload);
         // Freeze initialProps
         currentStep.initialProps = ObjectUtils.extend({}, info.props);
-        currentStep = this.runStep(currentStep, info);
         currentStep.active = true;
+        currentStep = this.runStep(currentStep, info);
         modified = true;
       }
     }
-    if (event.type === "CONTROL_POINT_DRAG_MOVE") {
+    if (event.type === "CANVAS_DRAG_MOVE") {
       if (currentStep.active) {
+        let info = this.propStore.getInfo(currentStep.componentId);
+        // Modify payload by applying transforms from actual coordinates to SVG coordinates
+        let dx = event.payload.deltaX, dy = event.payload.deltaY;
+        let matrix = getTransformationMatrix(info.props.transforms).inverse();
+        event.payload.deltaX = dx * matrix.a + dy * matrix.c;
+        event.payload.deltaY = dx * matrix.b + dy * matrix.d;
         currentStep = info.type.onScale(this, this.stepStore.getCurrentStep(), event.payload);
         currentStep = this.runStep(currentStep, info);
         modified = true;
+        this.debouncedPointSnap(event, false, currentStep);
       }
     }
 
-    if (event.type === "CONTROL_POINT_DRAG_END") {
+    if (event.type === "CANVAS_DRAG_END") {
       if (currentStep.active) {
+        let info = this.propStore.getInfo(currentStep.componentId);
+        let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
+          event.payload.y, function(pointId) {
+            return getPointNameFromPointId(pointId) !== currentStep.componentId;
+          });
+        if (point && point.pointId) {
+          event.payload.pointId = point.pointId;
+        }
         // Remove these snapping points from snappingStore!
         this.snappingStore.removeSnappingPoints(currentStep.componentId);
         currentStep = info.type.onScaleEnd(this, this.stepStore.getCurrentStep(), event.payload);
@@ -458,7 +511,8 @@ export default class Picture {
         currentStep.active = false;
         // Set snapping points
         info = this.propStore.getInfo(currentStep.componentId);
-        this.snappingStore.setSnappingPoints(currentStep.componentId, info.type.getSnappingPoints(info.props));
+        this.snappingStore.setSnappingPoints(currentStep.componentId, 
+          info.type.getSnappingPoints(info.props));
         this.snappingStore.hide();
         modified = true;
       }
@@ -780,10 +834,10 @@ export default class Picture {
           step.initialProps = clone(info.props);
           this.snappingStore.removeSnappingPoints(step.componentId);
         }
-        if (step.source.pointId) {
+        if (step.source && step.source.pointId) {
           step.source.pointId = changePointId(step.source.pointId, componentMap);
         }
-        if (step.target.pointId) {
+        if (step.target && step.target.pointId) {
           step.target.pointId = changePointId(step.target.pointId, componentMap);
         }
         break;
