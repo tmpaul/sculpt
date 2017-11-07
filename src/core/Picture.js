@@ -158,6 +158,10 @@ export default class Picture {
     if (event.type === "CANVAS_DRAG_MOVE") {
       let info = this.propStore.getInfo(currentStep.componentId);
       let componentType = currentStep.info.type;
+      let dx = event.payload.deltaX, dy = event.payload.deltaY;
+      let matrix = getTransformationMatrix(info.props.transforms).inverse();
+      event.payload.deltaX = dx * matrix.a + dy * matrix.c;
+      event.payload.deltaY = dx * matrix.b + dy * matrix.d;
       currentStep = this.runStep(componentType.onDraw(this, currentStep, event.payload), info);
       // Debounce and find out if the mouse pointer is close to a snapping point.
       // Exclude any points from same component
@@ -352,9 +356,6 @@ export default class Picture {
         // Modify payload by applying transforms from actual coordinates to SVG coordinates
         let dx = event.payload.deltaX, dy = event.payload.deltaY;
         let matrix = getTransformationMatrix(info.props.transforms).inverse();
-        // let { x, y } = matrix.applyToPoint(currentStep.source.x, currentStep.source.y);
-        // let ox = x, oy = y;
-        // let n = matrix.applyToPoint(currentStep.source.x + event.payload.deltaX, currentStep.source.y + event.payload.deltaY);
         event.payload.deltaX = dx * matrix.a + dy * matrix.c;
         event.payload.deltaY = dx * matrix.b + dy * matrix.d;
         currentStep = info.type.onMove(this, this.stepStore.getCurrentStep(), event.payload);

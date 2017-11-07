@@ -1,6 +1,7 @@
 import { ObjectUtils } from "utils/GenericUtils";
 import { AbortStep } from "components/steps";
 import { detectSnapping, syncPoint } from "utils/PointUtils";
+import { getTransformationMatrix } from "utils/TransformUtils";
 /**
  * Handle the start of drawing operation for a rectangle
  * 
@@ -81,6 +82,11 @@ export function evaluateDrawStep(picture, info, step) {
     } else if (targetPoint && targetPoint.pointId) {
       // Get point information
       targetPoint = syncPoint(picture.propStore, picture.snappingStore, targetPoint);
+      if (info.props.transforms && info.props.transforms.length) {
+        // Transform the targetPoint if there are any transforms.
+        targetPoint = getTransformationMatrix(info.props.transforms).inverse()
+          .applyToPoint(targetPoint.x, targetPoint.y);
+      }
     } else {
       targetPoint = {
         x: sourcePoint.x + (step.deltaX || 0),
