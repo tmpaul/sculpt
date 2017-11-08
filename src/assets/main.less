@@ -105,17 +105,14 @@ html, body {
 }
 
 .editable-input {
-
-    outline: none;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    color: inherit;
-    margin: 0px 5px;
-    background: #f5f5f5;
-    padding: 2px 5px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
+  outline: none;
+  font-family: monospace;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  margin: 0px 5px;
+  background: lightyellow;
+  border-radius: 3px;
 
   &.editing {
     color: purple;
@@ -283,6 +280,12 @@ pre.output {
   margin: 0px 3px;
   font-family: Courier;
   font-size: 12px;
+
+  &.editable {
+    background: #ffffb0;
+    height: 14px;
+    line-height: 12px;
+  }
 }
 
 .slot-input {

@@ -110,6 +110,10 @@ export default class EditableRectangle extends BaseComponent {
         }
       });
     }
+    let snap = false;
+    if (op.operation) {
+      snap = true;
+    }
     return (
       <g transform={transformStr}>
         <DraggableRect {...rectPropsObject}
@@ -117,14 +121,14 @@ export default class EditableRectangle extends BaseComponent {
           className={props.className}
           onClick={(e) => dispatch("SELECT")}
           onContextMenu={this.handleContextMenu}
-          fill={props.mode === "guide" ? "transparent" : rectPropsObject.fill}
-          stroke={props.mode === "guide" ? "cyan" : rectPropsObject.stroke}
-          pointerEvents={(op && op.operation) ? "none" : "auto"}
+          fill={props.guide ? "transparent" : rectPropsObject.fill}
+          stroke={props.guide ? "cyan" : rectPropsObject.stroke}
+          pointerEvents={snap ? "none" : "auto"}
           vectorEffect="non-scaling-stroke"
           style={props.style}
         />
         <g style={{
-          "display": props.mode ? "block" : (props.selected ? "block" : null)
+          "display": (props.selected || snap) ? "block" : null
         }}>
         {
           // Control points on corners
@@ -135,7 +139,8 @@ export default class EditableRectangle extends BaseComponent {
               key={point.name}
               x={point.x}
               y={point.y}
-              mode={props.mode}
+              guide={props.guide}
+              snap={snap}
               selected={props.selected}
             />
           );

@@ -228,17 +228,21 @@ export class FakeQuadtree {
       if (pointInfo) {
         let { pointX, pointY } = pointInfo;
         if (filterFunction(pointId, pointX, pointY)) {
-          if ((Math.abs(pointX - x) + Math.abs(pointY - y)) <= threshold) {
+          let distance = Math.abs(pointX - x) + Math.abs(pointY - y);
+          if (distance <= threshold) {
             closestPoints.push({
               pointId,
               pointX,
-              pointY
+              pointY,
+              distance
             });
           }
         }
       }
     });
     return closestPoints.sort(function(a, b) {
+      return a.distance > b.distance ? 1 : -1;
+    }).sort(function(a, b) {
       return a.pointId.length > b.pointId.length ? -1 : 1;
     });
   }

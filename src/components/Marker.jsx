@@ -5,20 +5,20 @@ let m = ObjectUtils.extend;
 function selectedState(props) {
   let styles = {
     strokeWidth: 2,
-    filter: "url(#bevel)",
     r: 5
   };
   if (props.selected) {
-    if (!props.mode) {
+    if (!props.guide) {
       styles.fill = "#0a58ff";
       styles.stroke = "#cecece";
+      styles.filter = "url(#bevel)";
     }
     return styles;
   }
 }
 
 function snapMode(props) {
-  return props.mode === "snap" ? {
+  return props.snap ? {
     fill: "yellow",
     stroke: "orange",
     strokeWidth: 1
@@ -26,20 +26,32 @@ function snapMode(props) {
 }
 
 function guideMode(props) {
-  return props.mode === "guide" ? {
+  return props.guide ? {
     fill: "cyan",
-    stroke: "#1bc1c1",
+    stroke: "#14ebf5",
     strokeWidth: 2,
-    r: 0,
+    r: 0
   } : undefined;
 }
 
 function getMarkerProps(props) {
+  let customStyles = [];
+  if (props.guide) {
+    if (props.selected) {
+      customStyles = [ guideMode(props), selectedState(props) ];
+    } else {
+      customStyles = [ props.snap ? snapMode(props) : guideMode(props) ];
+    }
+  } else {
+    if (props.selected) {
+      customStyles = [ selectedState(props) ];
+    } else if (props.snap) {
+      customStyles = [ snapMode(props) ];
+    }
+  }
   return m(
     ControlPoint.defaultStyles,
-    snapMode(props),
-    guideMode(props),
-    selectedState(props),
+    ...customStyles,
     {
       pointerEvents: "none"
     }

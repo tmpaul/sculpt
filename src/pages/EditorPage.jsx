@@ -34,6 +34,7 @@ export default class EditorPage extends BasePage {
         height: 420
       }
     });
+    window.picture = this.state.picture;
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
   }

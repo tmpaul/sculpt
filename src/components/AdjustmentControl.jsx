@@ -89,7 +89,7 @@ export default class AdjustmentControl extends BaseComponent {
         onDoubleClick={this.props.onDoubleClick}
         onMouseLeave={this.handleMouseLeave}
         onMouseEnter={this.handleMouseEnter}>
-          {this.state.value}
+          {this.state.value.toFixed(3)}
         </span>
       </span>
     );
@@ -180,7 +180,7 @@ export default class AdjustmentControl extends BaseComponent {
       value = min;
     }
     this.setState({
-      value: Math.round(value),
+      value,
       x: Math.max(0, Math.min(x, 190)),
     }, () => {
       if (this.props.onChange) {

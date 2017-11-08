@@ -1,8 +1,9 @@
 import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
-import Marker from "components/Marker";
+import ControlPoint from "components/Marker";
 import Rectangle from "components/rect/Rectangle";
 import Draggable from "components/Draggable";
+import OperationStore from "stores/OperationStore";
 
 
 let DraggableRect = Draggable("rect");
@@ -42,6 +43,11 @@ export default class Canvas extends BaseComponent {
   }
 
   render() {
+    let snap = false;
+    let op = OperationStore.getCurrentOperation() || {};
+    if (op.operation) {
+      snap = true;
+    }
     return (
       <g>
         {
@@ -54,7 +60,6 @@ export default class Canvas extends BaseComponent {
           height={this.props.canvasHeight}
           fill="transparent"
           stroke="none"
-          mode={null}
           onDragStart={this.handleDragStart}
           onDrag={this.handleDrag}
           onDragEnd={this.handleDragEnd}
@@ -70,10 +75,27 @@ export default class Canvas extends BaseComponent {
             height={this.props.height}
             fill="none"
             pointerEvents="none"
-            mode={this.props.mode}
             stroke="#dedede"
             strokeWidth="1px"
           />
+          <g style={{
+            "display": snap ? "block" : null
+          }}>
+            {
+              // Control points on corners
+            }
+            {Canvas.getSnappingPoints(this.props, false).map((point, index) => {
+              return (
+                <ControlPoint
+                  key={point.name}
+                  x={point.x}
+                  y={point.y}
+                  snap={snap}
+                  selected={false}
+                />
+              );
+            })}
+          </g>
           {this.props.children}
         </g>
       </g>

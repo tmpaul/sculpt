@@ -227,7 +227,8 @@ export function getScalingStepSlots(info, step) {
     });
     if (step.scaleX !== undefined) {
       slots.push({
-        type: "text",
+        type: "number",
+        editable: true,
         value: (step.scaleX).toFixed(3)
       });
     }
@@ -240,7 +241,8 @@ export function getScalingStepSlots(info, step) {
         });
       }
       slots.push({
-        type: "text",
+        type: "number",
+        editable: true,
         value: (step.scaleY).toFixed(3)
       });
     }

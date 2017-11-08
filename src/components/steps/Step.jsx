@@ -1,4 +1,4 @@
-
+import AdjustmentControl from "components/AdjustmentControl";
 
 function getDescription(pointObject, props) {
   if (!pointObject) {
@@ -12,7 +12,7 @@ function getDescription(pointObject, props) {
 }
 
 function getSlotValue(slot, props) {
-  if (slot.type === "text" || slot.type === "name") {
+  if (slot.type === "text" || slot.type === "name" || slot.type === "number") {
     return slot.value;
   } else if (slot.type === "point") {
     return getDescription(slot.value, props);
@@ -31,6 +31,23 @@ function setName(id, name, props) {
 function processSlot(id, slot, i, props) {
   if (slot.type === "text") {
     return (<span className="slot" key={i}>{slot.value}</span>);
+  } else if (slot.type === "number") {
+    if (slot.editable) {
+      return (<AdjustmentControl 
+        key={i} 
+        min={0}
+        max={5}
+        value={Number(slot.value)} onChange={(value) => {
+          let step = props.step;
+          step.scaleY = value;
+          // Copies info over
+          props.stepStore.updateCurrentStep(step);
+          window.picture.evaluate(props.stepStore.steps.length);
+          window.picture.emitChange();
+        }}/>);
+    } else {
+      return (<span key={i} className="slot" key={i}>{slot.value}</span>);
+    }
   } else if (slot.type === "point") {
     return (<span className="slot" key={i}>{getDescription(slot.value, props)}</span>);
   } else if (slot.type === "name") {
