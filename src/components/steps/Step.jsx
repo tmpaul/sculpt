@@ -1,4 +1,5 @@
 import AdjustmentControl from "components/AdjustmentControl";
+import Parameter from "components/parameters/Parameter";
 
 function getDescription(pointObject, props) {
   if (!pointObject) {
@@ -16,6 +17,11 @@ function getSlotValue(slot, props) {
     return slot.value;
   } else if (slot.type === "point") {
     return getDescription(slot.value, props);
+  } else if (slot.type === "expression") {
+    if (slot.value.type === "parameter") {
+      let parameter = window.picture.parametersStore.getParameterByIndex(slot.value.value);
+      return parameter.name;
+    }
   }
 }
 
@@ -28,6 +34,14 @@ function setName(id, name, props) {
   props.stepStore.updateCurrentStep(step);
 }
 
+function getExpressionSlot(slot, i) {
+  if (slot.value.type === "parameter") {
+    return (<span className="slot" key={i}>
+    {Parameter.renderSlot(slot, window.picture.parametersStore.getParameterByIndex(slot.value.value))}
+    </span>);
+  }
+}
+
 function processSlot(id, slot, i, props) {
   if (slot.type === "text") {
     return (<span className="slot" key={i}>{slot.value}</span>);
@@ -35,11 +49,21 @@ function processSlot(id, slot, i, props) {
     if (slot.editable) {
       return (<AdjustmentControl 
         key={i} 
-        min={0}
-        max={5}
-        value={Number(slot.value)} onChange={(value) => {
+        min={slot.min}
+        max={slot.max}
+        sensitivity={0.2}
+        value={Number(slot.value)}
+        onDrop={(data) => {
           let step = props.step;
-          step.scaleY = value;
+          step[slot.attribute] = data;
+          // Copies info over
+          props.stepStore.updateCurrentStep(step);
+          window.picture.evaluate(props.stepStore.steps.length);
+          window.picture.emitChange();
+        }}
+        onChange={(value) => {
+          let step = props.step;
+          step[slot.attribute] = value;
           // Copies info over
           props.stepStore.updateCurrentStep(step);
           window.picture.evaluate(props.stepStore.steps.length);
@@ -48,6 +72,8 @@ function processSlot(id, slot, i, props) {
     } else {
       return (<span key={i} className="slot" key={i}>{slot.value}</span>);
     }
+  } else if (slot.type === "expression") {
+    return getExpressionSlot(slot, i);
   } else if (slot.type === "point") {
     return (<span className="slot" key={i}>{getDescription(slot.value, props)}</span>);
   } else if (slot.type === "name") {

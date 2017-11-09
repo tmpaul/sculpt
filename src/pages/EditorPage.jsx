@@ -10,6 +10,7 @@ import { TitleStepComponent } from "components/steps";
 import Steps from "components/steps/Steps";
 import Picture from "core/Picture";
 import PropertyPanel from "components/PropertyPanel";
+import ParametersPanel from "components/parameters/ParametersPanel";
 
 export default class EditorPage extends BasePage {
   // *********************************************************
@@ -66,6 +67,12 @@ export default class EditorPage extends BasePage {
           position: "absolute",
           minHeight: "100%"
         }}>
+           <ParametersPanel
+              parameters={this.state.picture.parametersStore.getParameters()}
+              onParameterChange={(index, parameter) => {
+                this.state.picture.parametersStore.setParameter(index, parameter);
+              }}
+           />
            {
             // Render a list of parameters. Allows user to add more parameters.
             // All added parameters will be exposed to outside world for control.

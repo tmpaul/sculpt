@@ -10,6 +10,7 @@ import PropetyPanelStore from "stores/PropertyPanelStore";
 import StepStore from "stores/StepStore";
 import PropStore from "stores/PropStore";
 import SnappingStore from "stores/SnappingStore";
+import ParametersStore from "stores/ParametersStore";
 import EventStoreSingleton from "stores/EventStore";
 import OperationStoreSingleton from "stores/OperationStore";
 import { getComponentIdFromPointId, getPointNameFromPointId,
@@ -43,6 +44,12 @@ export default class Picture {
     });
     // All the properties for its subcomponents are stored in PropStore
     this.propStore = new PropStore(this.stepStore.updateStepInfo.bind(this.stepStore));
+    this.parametersStore = new ParametersStore();
+    // Subscribe
+    this.parametersStore.addChangeListener(() => {
+      this.evaluate(this.stepStore.getCurrentIndex());
+      this.emitChange();
+    });
     // A store for storing all the snapping points
     this.snappingStore = new SnappingStore(this.propStore);
     // Listen for events on EventStore
@@ -878,7 +885,9 @@ export default class Picture {
 
     // Return the updated step and info
     this.propStore.setInfo(step.componentId, info);
-    this.propStore.setSelectionState(step.componentId, true);
+    if (step.active) {
+      this.propStore.setSelectionState(step.componentId, true);
+    }
     // Return the updated step
     // After handlers
     if (!step.active || step.loopIndex !== undefined) {
@@ -894,6 +903,14 @@ export default class Picture {
     return step;
   }
 
+  evaluateExpression(expression) {
+    switch (expression.type) {
+      case "parameter":
+        let parameter = this.parametersStore.getParameterByIndex(expression.value);
+        // Read in the value and return
+        return parameter.value;
+    };
+  }
   /**
    * Render the children using propStore
    * @param  {Array} children Array of children

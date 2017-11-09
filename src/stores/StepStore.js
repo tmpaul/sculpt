@@ -32,7 +32,7 @@ export default class StepStore extends EventEmitter {
   }
 
   getCurrentIndex() {
-    return this._nextInsertIndex;
+    return this._nextInsertIndex >= 0 ? this._nextInsertIndex : this._index;
   }
 
   getSteps(start, end) {

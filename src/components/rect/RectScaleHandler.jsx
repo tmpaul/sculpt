@@ -151,8 +151,18 @@ export function evaluateScaleStep(picture, info, step) {
     scaleY = Math.abs(aboutPoint.y - targetPoint.y) / step.initialProps.height;
   } else {
     // There is no target point use scaleX, scaleY
-    scaleX = step.scaleX || 1;
-    scaleY = step.scaleY || 1;
+    if (ObjectUtils.isObject(step.scaleX)) {
+      // scaleX is an expression, evaluate it from picture
+      scaleX = picture.evaluateExpression(step.scaleX);
+    } else {
+      scaleX = step.scaleX !== undefined ? step.scaleX : 1;
+    }
+    if (ObjectUtils.isObject(step.scaleY)) {
+      // scaleX is an expression, evaluate it from picture
+      scaleY = picture.evaluateExpression(step.scaleY);
+    } else {
+      scaleY = step.scaleY !== undefined ? step.scaleY : 1;
+    }
   }
   if (name === "bottom right") {
     return {
@@ -226,11 +236,21 @@ export function getScalingStepSlots(info, step) {
       value: "by"
     });
     if (step.scaleX !== undefined) {
-      slots.push({
-        type: "number",
-        editable: true,
-        value: (step.scaleX).toFixed(3)
-      });
+      if (ObjectUtils.isObject(step.scaleX)) {
+        slots.push({
+          type: "expression",
+          value: step.scaleX
+        });
+      } else {
+        slots.push({
+          type: "number",
+          attribute: "scaleX",
+          min: 0,
+          max: 10,
+          editable: true,
+          value: (step.scaleX).toFixed(3)
+        });
+      }
     }
 
     if (step.scaleY !== undefined) {
@@ -240,11 +260,21 @@ export function getScalingStepSlots(info, step) {
           value: ","
         });
       }
-      slots.push({
-        type: "number",
-        editable: true,
-        value: (step.scaleY).toFixed(3)
-      });
+      if (ObjectUtils.isObject(step.scaleY)) {
+        slots.push({
+          type: "expression",
+          value: step.scaleY
+        });
+      } else {
+        slots.push({
+          type: "number",
+          attribute: "scaleY",
+          min: 0,
+          max: 10,
+          editable: true,
+          value: (step.scaleY).toFixed(3)
+        });
+      }
     }
   }
   return slots;
