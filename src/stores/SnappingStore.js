@@ -3,6 +3,7 @@ import { intersect, shape } from "svg-intersections";
 import { getComponentIdFromPointId, getPointNameFromPointId } from "utils/PointUtils";
 import { debounce, ObjectUtils } from "utils/GenericUtils";
 import { FakeQuadtree as Quadtree } from "utils/Quadtree";
+import EventStore from "stores/EventStore";
 
 export default class SnappingStore extends EventEmitter {
 

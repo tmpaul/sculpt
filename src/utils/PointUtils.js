@@ -160,8 +160,12 @@ export function syncPoint(propStore, snappingStore, sourcePoint) {
   let result;
   if (sourcePoint.pointId) {
     // Then get the x and y coordinates from picture.snappingStore.
-    let sourceInfo = propStore.getInfo(getComponentIdFromPointId(sourcePoint.pointId));
-    result = sourceInfo.type.getSnappingPoint(sourceInfo.props, getPointNameFromPointId(sourcePoint.pointId));
+    let point = snappingStore.getPoint(sourcePoint.pointId);
+    result = {
+      x: point.pointX,
+      y: point.pointY,
+      pointId: point.pointId
+    };
   } else {
     result = sourcePoint;
   }

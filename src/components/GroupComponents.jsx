@@ -1,21 +1,27 @@
 import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
-import Marker from "components/Marker";
+import ControlPoint from "components/Marker";
 import Rectangle from "components/rect/Rectangle";
+import Draggable from "components/Draggable";
+import OperationStore from "stores/OperationStore";
+
+
+let DraggableRect = Draggable("rect");
 
 /**
  * A root SVG <g> component. It simply showing snapping points
  * @param {Object} props Properties passed down to this component
  * @return {Object} React render tree
  */
-export class RootGroup extends BaseComponent {
+export default class Canvas extends BaseComponent {
 
   static defaultProps = {
-    width: 295,
-    height: 145,
-    translateX: 6,
-    translateY: 6,
-    showMarkers: false
+    width: 660,
+    height: 420,
+    translateX: 20,
+    translateY: 20,
+    canvasWidth: 700,
+    canvasHeight: 460
   };
 
   static displayName = "Canvas";
@@ -28,56 +34,116 @@ export class RootGroup extends BaseComponent {
   static getSnappingPoint =  Rectangle.getSnappingPoint;
   static getSnappingPoints = Rectangle.getSnappingPoints;
 
-  componentWillReceiveProps(nextProps) {
-    let node = ReactDOM.findDOMNode(this);
-    if (node && nextProps.showMarkers === true && this.props.showMarkers === false) {
-      // Store the bounding box to show markers!
-      this.bbox = node.getBBox();
-    }
-  }
-
   componentDidMount() {
-    if (this.props.showMarkers) {
-      let node = ReactDOM.findDOMNode(this);
-      this.bbox = node.getBBox();
-      this.forceUpdate();
-    }
+    let node = ReactDOM.findDOMNode(this);
+    // The bounding box is used to calculat the offsets that need to be applied
+    // to events from canvas
+    this.bbox = node.getBoundingClientRect();
+    this.forceUpdate();
   }
 
   render() {
-    let { showMarkers } = this.props;
+    let snap = false;
+    let op = OperationStore.getCurrentOperation() || {};
+    if (op.operation) {
+      snap = true;
+    }
     return (
-      <g ref={(el) => this.rect = el} transform={`translate(${this.props.translateX}, ${this.props.translateY})`}>
+      <g>
         {
-          // There is a hidden rectangle with width and height so that bounding rectangle is correct
+          // There is a hidden rectangle with width and height for capturing mouse events
         }
-        <Rectangle
-          x={this.props.x}
-          y={this.props.y}
-          width={this.props.width}
-          height={this.props.height}
+        <DraggableRect
+          x={0}
+          y={0}
+          width={this.props.canvasWidth}
+          height={this.props.canvasHeight}
           fill="transparent"
-          stroke="#d8d8d8"
-          strokeWidth={1}
-          showMarkers={this.props.showMarkers}
-          mode={this.props.mode}
-          handleEvent={this.handleEvent}
+          stroke="none"
+          onDragStart={this.handleDragStart}
+          onDrag={this.handleDrag}
+          onDragEnd={this.handleDragEnd}
         />
-        {this.props.children}
+        <g transform={`translate(${this.props.translateX}, ${this.props.translateY})`}>
+          {
+            // Draw a rect showcasing the canvas border
+          }
+          <rect
+            x={0}
+            y={0}
+            width={this.props.width}
+            height={this.props.height}
+            fill="none"
+            pointerEvents="none"
+            stroke="#dedede"
+            strokeWidth="1px"
+          />
+          <g style={{
+            "display": snap ? "block" : null
+          }}>
+            {
+              // Control points on corners
+            }
+            {Canvas.getSnappingPoints(this.props, false).map((point, index) => {
+              return (
+                <ControlPoint
+                  key={point.name}
+                  x={point.x}
+                  y={point.y}
+                  snap={snap}
+                  selected={false}
+                />
+              );
+            })}
+          </g>
+          {this.props.children}
+        </g>
       </g>
     );
   }
 
-  handleEvent(event) {
-    event.type = event.type.replace("COMPONENT", "CANVAS");
-    // if (event.type === "CANVAS_DRAG_START" || event.type === "CANVAS_DRAG_END") {
-    //   let rect = this.rect.getBoundingClientRect();
-    //   event.payload.x = event.payload.x - rect.left;
-    //   event.payload.y = event.payload.y - rect.top;
-    // }
-    if (event.type === "SELECT") {
+  handleDragStart({ origin } = {}) {
+    this.handleEvent("CANVAS_DRAG_START", {
+      x: origin[0],
+      y: origin[1]
+    });
+  }
+
+  handleDrag({ origin, x, y, dx, dy } = {}) {
+    this.handleEvent("CANVAS_DRAG_MOVE", {
+      x: origin[0] + x,
+      y: origin[1] + y,
+      deltaX: x,
+      deltaY: y
+    });
+  }
+
+  handleDragEnd({ origin, x, y } = {}) {
+    this.handleEvent("CANVAS_DRAG_END", {
+      x: origin[0] + x,
+      y: origin[1] + y
+    });
+  }
+
+  handleEvent(eventType, payload) {
+    if (eventType === "CANVAS_DRAG_START" || eventType === "CANVAS_DRAG_END" || eventType === "CANVAS_DRAG_MOVE") {
+      let { translateX, translateY, width, height } = this.props;
+      // payload.x -= this.bbox.left;
+      // payload.y -= this.bbox.top;
+      payload.x = Math.max(translateX, Math.min(payload.x, width + translateX)) - translateX;
+      payload.y = Math.max(translateY, Math.min(payload.y, height + translateY)) - translateY;
+    }
+    if (eventType === "CANVAS_DRAG_MOVE") {
+      let { width, height } = this.props;
+      payload.deltaX = Math.min(payload.deltaX, width);
+      payload.deltaY = Math.min(payload.deltaY, height);
+    }
+    if (eventType === "SELECT") {
       return;
     }
-    this.props.handleEvent(event);
+    this.props.handleEvent({
+      type: eventType,
+      payload
+    });
   }
 };

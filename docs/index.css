@@ -1,0 +1,159 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0px;
+  background: #56CCF2;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #2F80ED, #56CCF2);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #2F80ED, #56CCF2); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.wrapper {
+  min-height: 100%;
+  margin-top: 20px;
+  padding-top: 40px;
+
+  /* Equal to height of footer */
+  /* But also accounting for potential margin-bottom of last child */
+  margin-bottom: -20px;
+}
+.footer,
+.push {
+  height: 20px;
+}
+
+.footer {
+  text-align: center;
+  color: #212121;
+  font-family: serif;
+  font-size: 12px;
+  background: rgba(26, 122, 175, 0.44);
+  line-height: 1.5em;
+}
+
+svg {
+  display: block;
+  background: transparent;
+  height: 150px;
+  width: 200px;
+}
+
+svg .marker {
+  stroke-width: 3px;
+  stroke: #212121;
+  fill: #008dff;
+}
+
+svg .path {
+  stroke: #115fbf;
+  fill-opacity: 0.8;
+  stroke-width: 1px !important;
+  /*stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  stroke-linejoin: bevel;*/
+}
+
+.logo-container {
+  position: absolute;
+  top: 40px;
+}
+
+#logo-wrapper {
+  animation: swing 2s ease-in alternate infinite;
+}
+
+svg .path:hover {
+  fill-opacity: 1;
+}
+
+@keyframes swing {
+  0% {
+    transform: rotateZ(0deg);
+    transform-origin: 0% 100%;
+  }
+
+  80% {
+    transform: rotateZ(18deg);
+    transform-origin: 0% 100%;
+  }
+  100% {
+    transform: rotateZ(28deg);
+    transform-origin: 0% 100%;
+  }
+}
+
+.animate-transform {
+  transition: transform 0.5s ease-in
+}
+
+
+.logo-text {
+  color: #fff;
+  text-align: center;
+}
+
+.logo-text > .character {
+  position: relative;
+  font-family: courier;
+  font-weight: bold;
+  font-size: 100px;
+  color: #fff;
+  transition: all 0.5s ease-in;
+  background: #41a0ef;
+  margin: 0px 10px;
+  padding: 0px 25px;
+  display: inline-block;
+  box-shadow: 0px 2px 4px rgb(35, 113, 154);
+}
+
+.logo-text > .character:hover {
+  color: #ececec;
+  transition: all 0.3s ease-in;
+  transform: scale(1.05);
+}
+
+.character:before,
+.character:after {
+  content: attr(data-letter);
+  position: absolute;
+  left: 25px;
+  color: transparent;
+  transition: all 0.5s ease-in;
+}
+      
+.character:hover:before {
+  -webkit-transform-style: preserve-3d;
+  -webkit-transform: skew(0deg, 3deg);
+  -webkit-transform-origin:0 100% ;
+  -ms-transform-style: preserve-3d;
+  -ms-transform: skew(0deg, 3deg);
+  -ms-transform-origin:0 100% ;
+  transform-style:preserve-3d;
+  transform: skew(0deg, 3deg);
+  transform-origin:0 100% ;
+  /* Both shadows are required for browsers that don't support full spread specs and those that do support full spread specs*/
+  text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.25);
+  text-shadow:0px 3px 5px 1px rgba(0,0,0,0.25);
+}
+
+.character:hover:after {
+  color: #FFF;
+  background: 
+  -webkit-linear-gradient(left, #FFF, #EEE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-transform-style:preserve-3d;
+  -webkit-transform: rotateY(25deg);
+  -webkit-transform-origin:0 100% ;
+  -ms-linear-gradient(45deg, white, black);
+  -ms-background-clip: text;
+  -ms-text-fill-color: transparent;
+  -ms-transform-style:preserve-3d;
+  -ms-transform: rotateY(25deg);
+  -ms-transform-origin:0 100% ;
+  transform-style:preserve-3d;
+  transform: rotateY(25deg);
+  transform-origin:0 100% ;
+  z-index: 100;
+}

@@ -32,7 +32,7 @@ export default class StepStore extends EventEmitter {
   }
 
   getCurrentIndex() {
-    return this._nextInsertIndex;
+    return this._nextInsertIndex >= 0 ? this._nextInsertIndex : this._index;
   }
 
   getSteps(start, end) {
@@ -103,15 +103,38 @@ export default class StepStore extends EventEmitter {
         }
         break;
       case "SCALE":
-        if (step.source.pointId) {
+        if (step.source && step.source.pointId) {
           step.source.pointId = changePointId(step.source.pointId, componentMap);
         }
-        if (step.target.pointId) {
+        if (step.target && step.target.pointId) {
           step.target.pointId = changePointId(step.target.pointId, componentMap);
         };
         break;
     }
     return step;
+  }
+
+
+  seedStep(componentId, info) {
+    this.steps.forEach((step, i) => {
+      if (step.componentId === componentId && step.type === "DRAW") {
+        // There are two options: either its part of a loop step,
+        // or it is a plain step.
+        if (step.loopIndex !== undefined) {
+          // Then update all steps that are looped across iterations
+          let loopStep = this.getLoopStep(step.loopIndex);
+          // Find out all of steps corresponding to this step.
+          // 01 2 3 4 5 6 7
+          let subStepIndex = (i - loopStep.startIndex) % (loopStep.steps.length);
+          for (let iter = 0; iter < loopStep.iteration; iter ++) {
+            let k = loopStep.startIndex + subStepIndex + iter * (loopStep.steps.length);
+            this.steps[k].info = ObjectUtils.extend({}, this.steps[k].info, info);
+          }
+        } else {
+          step.info = ObjectUtils.extend({}, step.info, info);
+        }
+      }
+    });
   }
 
   updateCurrentStep(step) {
@@ -146,7 +169,9 @@ export default class StepStore extends EventEmitter {
           // We need to re-map the step so that it is inserted correctly in the loop substep
           let firstComponentId;
           if (step.type === "DRAW") {
-            firstComponentId = "0." + (Number(step.componentId.split(".")[1]) - (loopStep.iteration - 1));
+            // Count the number of DRAW steps in loopSteep
+            let drawStepCount = loopStep.steps.filter((step) => step.type === "DRAW").length;
+            firstComponentId = "0." + (Number(step.componentId.split(".")[1]) - (loopStep.iteration - 1) * drawStepCount);
           } else {
             // Simply wind back to first iteration and get its componentId
             let firstStep = this.steps[insertLocation + loopStep.startIndex - 1];
@@ -172,22 +197,42 @@ export default class StepStore extends EventEmitter {
         let index = this._index;
         // Update the current step and all corresponding steps in previous iterations
         let substepIndex = index - (loopStep.startIndex + (loopStep.iteration - 1) * loopStep.steps.length);
-        // If the step already exists such as from the `if` block above, then re-map the step
-        // and merge in
-        if (loopStep.steps[substepIndex] !== undefined) {
-          step = this.remapStep(step, loopStep.steps[substepIndex].componentId, loopStep.componentMap);
-          // step.componentId = "0.2";
-          // step.info.id = "0.2";
-          // step.drawing = false;
-          // step.moving = false;
-          // step.scaling = false;
+        let fresh = true;
+        if (loopStep.steps[substepIndex] && loopStep.steps[substepIndex].componentId === step.componentId) {
+          // We already inserted the step, do not set _index.
+          fresh = false;
+        }
+        if (fresh) {
+          // Grand new entry
+          if (loopStep.iteration > 1) {
+            // We need to re-map the step so that it is inserted correctly in the loop substep
+            let firstComponentId;
+            if (step.type === "DRAW") {
+              // Count the number of DRAW steps in loopSteep
+              let drawStepCount = loopStep.steps.filter((step) => step.type === "DRAW").length;
+              firstComponentId = "0." + (Number(step.componentId.split(".")[1]) - (loopStep.iteration - 1) * drawStepCount);
+            } else {
+              // Simply wind back to first iteration and get its componentId
+              let firstStep = this.steps[substepIndex + loopStep.startIndex - 1];
+              firstComponentId = firstStep.componentId;
+            }
+            // Remap the componentId of step as well as `source` and `target` depending on the
+            // type of the step.
+            step = this.remapStep(step, firstComponentId, loopStep.componentMap);
+          }
+        } else {
+          // We need to re-map the step so that it is inserted correctly in the loop substep
+          step = this.remapStep(step, loopStep.steps[substepIndex].componentId, loopStep.componentMap); 
         }
         // When setting it, do it as if we are doing it for the first component.
         loopStep.steps[substepIndex] = ObjectUtils.extend({}, loopStep.steps[substepIndex] || {}, step);
+        let newIndex = (index + loopStep.iteration - 1);
         // Run and evaluate till `next` index, then render onto screen
-        let steps = this.picture.runStepLoop(loopStep, loopStep.iteration, undefined, index);
-        this.insertEvaluatedLoopSteps(loopStep, steps, index);
-        this.picture.evaluate(index);
+        let steps = this.picture.runStepLoop(loopStep, loopStep.iteration, undefined, fresh ? newIndex : index);
+        // Only upto index is inserted
+        this.insertEvaluatedLoopSteps(loopStep, steps, fresh ? newIndex : index);
+        this._selected = [ fresh ? newIndex : index ];
+        this.picture.evaluate(fresh ? newIndex : index);
       }
     } else if ((next !== undefined && next !== null)) {
       // We have to insert the step at this index and displace everybody after
@@ -244,80 +289,10 @@ export default class StepStore extends EventEmitter {
     let steps = this.picture.runStepLoop(loopStep, iteration);
     this.insertEvaluatedLoopSteps(loopStep, steps);
     this.picture.emitChange();
-    // if (iteration <= 1) {
-    //   return;
-    // }
-    // // Run the steps in loopStep n number of times
-    // // First evaluate until startIndex
-    // let componentMap = {};
-    // let propStore = this.picture.propStore;
-    // let snappingStore = this.picture.snappingStore;
-    // let picture = this.picture;
-    // this.picture.evaluate(loopStep.startIndex - 1);
-    // this.steps = this.steps.slice(0, loopStep.startIndex);
-    // this._index = this.steps.length - 1;
-    // loopStep.endIndex = loopStep.startIndex - 1;
-    // loopStep.iteration = iteration;
-    // for (let iter = 0; iter < iteration; iter++) {
-    //   loopStep.steps.forEach((step) => {
-    //     loopStep.endIndex++;
-    //     step = ObjectUtils.extend({}, step);
-    //     step.loopIndex = loopStep.loopIndex;
-    //     // Run the step
-    //     let componentId = step.componentId;
-    //     // Get info from PropStore
-    //     let info = propStore.getInfo(componentMap[componentId] || componentId);
-    //     step.componentId = componentMap[componentId] || componentId;
-    //     if (step.type === "DRAW") {
-    //       step = picture.runStep(step, componentMap);
-    //       // Any time componentId is encountered, in this local scope it will be replaced
-    //       // with childId
-    //       componentMap[componentId] = step.componentId;
-    //     }
-    //     if (step.type === "SCALE") {
-    //       step.scaleY = Math.random();
-    //       picture.runStep(step, componentMap);
-    //     }
-    //     if (step.type === "MOVE") {
-    //       picture.runStep(step, componentMap);
-    //     }
-    //     this.nextStep();
-    //     this.steps[this._index] = step;
-    //   });
-    // }
-    // this._index = this.steps.length - 1;
-    // this._loops[loopStep.loopIndex] = loopStep;
-    // this.picture.emitChange();
   }
 
   toggleSelected(index) {
     let i = this._selected.indexOf(index);
-    // // If there are any selected steps after `index`, remove them
-    // this._selected = this._selected.filter((i) => {
-    //   return i <= index;
-    // });
-    // if (i === -1) {
-    //   this._selected.push(index);
-    //   // If there are any selected steps below index and they are more than 1 index away
-    //   // remove them
-    //   this._selected = this._selected.filter((i) => {
-    //     if (Math.abs(i - index) > 1) {
-    //       return false;
-    //     }
-    //     return true;
-    //   });
-    //   this._selected.sort();
-    //   this.stepEvaluator(index);
-    // } else {
-    //   this._selected.splice(i, 1);
-    //   this._selected.sort();
-    //   // Last previous selected
-    //   if (this._selected.length === 0) {
-    //     this.stepEvaluator(this.steps.length - 1);
-    //   } else {
-    //     this.stepEvaluator(this._selected[this._selected.length - 1]);
-    //   }
-    // }
     if (this.shiftKey) {
       // Allow multi-select with auto range coverage
       if (i === -1) {
@@ -347,14 +322,6 @@ export default class StepStore extends EventEmitter {
         this._selected = [ index ];
         if (this.steps[index].loopIndex !== undefined) {
           this._currentLoopIndex = this.steps[index].loopIndex;
-          // Also select all steps across all iterations
-          this._selected = [];
-          let loopStep = this._loops[this._currentLoopIndex];
-          // Get the index offset
-          let offset = index - (loopStep.startIndex + loopStep.steps.length * (loopStep.iteration - 1));
-          for (let i = 0; i <= loopStep.iteration; i++) {
-            this._selected.push(offset + loopStep.steps.length * i + loopStep.startIndex);
-          }
         } else {
           this._currentLoopIndex = null;
         }

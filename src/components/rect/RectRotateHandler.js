@@ -21,19 +21,22 @@ const distance = (pt1, pt2) => Math.sqrt(Math.pow(pt1.x - pt2.x, 2) + Math.pow(p
  * Handle the start of a rotate operation
  * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The move step
- * @param  {Number} options.x The x coordinate of the point where user clicked in the canvas
- * @param  {Number} options.y The y coordinate of the point where user clicked in the canvas
+ * @param  {String} options.pointId        The id of the point that user clicked on
  * @return {Object} The updated step
  */
-export function onRotateStart(picture, step, { x, y }) {
+export function onRotateStart(picture, step, { pointId }) {
   // Find the snapping point on the rectangle that closely matches (x, y)
   step.rotateAngle = 0;
   step.rotateCenter = null;
   let info = picture.propStore.getInfo(step.componentId);
-  step.transformId = info.props.transforms.length;
-  let controlPoint = closestSelfControlPoint(info.type, info.props, { x, y });
-  // Get the corresponding snap point version
-  step.source = toSourcePoint(step.componentId, controlPoint);
+  // Get the corresponding snap point version so that we know its x,y coords in
+  // the transformed space
+  let snapPoint = info.type.getSnappingPoint(info.props, getPointNameFromPointId(pointId));
+  step.source = {
+    pointId,
+    x: snapPoint.x,
+    y: snapPoint.y
+  };
   // Given a source point, identify the point we are rotating about
   if (step.source && step.source.pointId) {
     // Get the name of the point from the pointId
@@ -110,14 +113,14 @@ export function onRotateEnd(picture, step, { x, y }) {
   // Find out the matrix of the node being modified. We will use
   // data-sculpt-id to select the rect. For the actual drawing,
   // the calculated matrix will be stored on step
-  let node = document.querySelector(`[data-sculpt-id="${step.componentId}"]`);
-  step.matrix = node.getCTM();
-  let txPt = getTransformedPoint(picture, step.matrix, { x, y });
-  // Detect snapping now
-  let point = detectSnapping(picture.snappingStore, txPt);
-  if (point && point.pointId) {
-    step.source = point;
-  }
+  // let node = document.querySelector(`[data-sculpt-id="${step.componentId}"]`);
+  // step.matrix = node.getCTM();
+  // let txPt = getTransformedPoint(picture, step.matrix, { x, y });
+  // // Detect snapping now
+  // let point = detectSnapping(picture.snappingStore, txPt);
+  // if (point && point.pointId) {
+  //   step.source = point;
+  // }
   return step;
 };
 
@@ -149,7 +152,7 @@ export function evaluateRotateStep(picture, info, step) {
 }
 
 export function getRotationStepSlots(info, step) {
-  let rotation = (info.props.transforms[step.transformId] || {}).rotation || 0;
+  let rotation = ((info.props.transforms || [])[step.transformId] || {}).rotation || 0;
   let slots = [ {
     type: "text",
     value: "Rotate"

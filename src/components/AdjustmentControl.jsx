@@ -2,6 +2,11 @@ import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
 
 export default class AdjustmentControl extends BaseComponent {
+
+  static defaultProps = {
+    sensitivity: 1
+  };
+
   constructor(props, ...args) {
     super(props, ...args, { bind: true });
     let { min, max } = this.getMinMax(props.min, props.max, props);
@@ -56,48 +61,54 @@ export default class AdjustmentControl extends BaseComponent {
   offset() {
     let rect = ReactDOM.findDOMNode(this.el).getBoundingClientRect();
     this.setState({
-      elTop: rect.top + rect.height / 2 - 30,
+      elTop: rect.top + rect.height / 2 - 20,
       elLeft: rect.left + rect.width / 2 - 100
     });
   }
 
   render() {
+    let droppable = this.props.onDrop;
     return (
-      <span>
-        {this.state.active && (<span style={{
-          width: 200,
-          position: "fixed",
-          top: this.state.elTop,
-          left: this.state.elLeft,
-          background: "#212121",
-          borderRadius: "10px",
-          height: "10px",
-          border: "1px solid gray"
-        }}>
-        <span
-          style={{
-            position: "absolute",
-            top: -1,
-            background: "rgb(40, 151, 224)",
-            height: 10,
-            width: 10,
-            borderRadius: "50%",
-            left: this.state.x
-          }}
-        /></span>)}
-        <span ref={(el) => this.el = el} className="editable-input"
-        onDoubleClick={this.props.onDoubleClick}
-        onMouseLeave={this.handleMouseLeave}
-        onMouseEnter={this.handleMouseEnter}>
-          {this.state.value}
-        </span>
-      </span>
-    );
+      <span className="adjustment-control">
+        {this.state.active && (
+          <span className="adjustment-control-slider" style={{
+            top: this.state.elTop,
+            left: this.state.elLeft
+          }}>
+            <span className="adjustment-control-knob" style={{
+              left: this.state.x
+            }}/>
+          </span>)}
+          <span ref={(el) => this.el = el} 
+            className="adjustment-control-value"
+            onDragOver={droppable ? this.allowDrop : BaseComponent.NOOP} 
+            onDrop={droppable ? this.drop : BaseComponent.NOOP}
+            onMouseLeave={this.handleMouseLeave}
+            onMouseEnter={this.handleMouseEnter}>
+            {this.state.value.toFixed(3)}
+          </span>
+        </span>);
+  }
+
+  allowDrop(event) {
+    event.preventDefault();
+  }
+
+  drop(event) {
+    event.preventDefault();
+    let data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    // AdjustmentControl does not really care about what expression
+    // is dropped, that is upto the step evaluator to care. Just insert
+    // the appropriate component
+    if (this.props.onDrop) {
+      this.props.onDrop(data);
+    }
   }
 
   stopDrag() {
     this.setState({
       active: false,
+      p0: undefined,
       x0: this.state.x
     });
     document.body.style.cursor = "auto";
@@ -126,6 +137,9 @@ export default class AdjustmentControl extends BaseComponent {
       // Track and update position of adjustment slider
       // using mouse position
       if (e.shiftKey) {
+        if (!this.state.p0) {
+          this.state.p0 = e.clientX;
+        }
         this.handleDrag(e.clientX - this.state.p0);
       }
     }
@@ -169,10 +183,10 @@ export default class AdjustmentControl extends BaseComponent {
   }
 
   handleDrag(diff) {
-    let x = this.state.x0 + diff;
+    let x = (this.state.x0 + diff * this.props.sensitivity);
     let { min, max } = this.state;
     // When diff is 100 reach props.max, when diff is -100, reach props.min
-    let value = min + (x) / 200 * (max - min);
+    let value = (min + (x) / 190 * (max - min));
     if (max && value > max) {
       value = max;
     }
@@ -180,7 +194,7 @@ export default class AdjustmentControl extends BaseComponent {
       value = min;
     }
     this.setState({
-      value: Math.round(value),
+      value,
       x: Math.max(0, Math.min(x, 190)),
     }, () => {
       if (this.props.onChange) {
@@ -201,9 +215,9 @@ export default class AdjustmentControl extends BaseComponent {
           return;
         }
         this.offset();
+        let rect = ReactDOM.findDOMNode(this.el).getBoundingClientRect();
         this.setState({
-          active: true,
-          p0: e.clientX
+          active: true
         });
         if (this.props.onChangeStart) {
           this.props.onChangeStart(this.state.value, this.props.name);
@@ -215,7 +229,6 @@ export default class AdjustmentControl extends BaseComponent {
     } else {
       let rect = ReactDOM.findDOMNode(this.el).getBoundingClientRect();
       this.setState({
-        p0: rect.left + rect.width / 2,
         waitingForShiftKey: true
       });
     }

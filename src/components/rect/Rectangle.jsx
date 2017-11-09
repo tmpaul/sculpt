@@ -110,34 +110,25 @@ export default class EditableRectangle extends BaseComponent {
         }
       });
     }
+    let snap = false;
+    if (op.operation) {
+      snap = true;
+    }
     return (
       <g transform={transformStr}>
         <DraggableRect {...rectPropsObject}
           data-sculpt-id={props.componentId}
           className={props.className}
-          onClick={() => dispatch("SELECT")}
+          onClick={(e) => dispatch("SELECT")}
           onContextMenu={this.handleContextMenu}
-          onDragStart={({ origin }) => dispatch("CANVAS_DRAG_START", {
-            x: origin[0],
-            y: origin[1]
-          })}
-          onDrag={({ x, y, dx, dy }) => dispatch("CANVAS_DRAG_MOVE", {
-            x: props.x + dx,
-            y: props.y + dy,
-            deltaX: x,
-            deltaY: y
-          })}
-          onDragEnd={({ origin, x, y }) => dispatch("CANVAS_DRAG_END", {
-            x: origin[0] + x,
-            y: origin[1] + y
-          })}
-          fill={props.mode === "guide" ? "transparent" : rectPropsObject.fill}
-          stroke={props.mode === "guide" ? "cyan" : rectPropsObject.stroke}
+          fill={props.guide ? "transparent" : rectPropsObject.fill}
+          stroke={props.guide ? "cyan" : rectPropsObject.stroke}
+          pointerEvents={snap ? "none" : "auto"}
           vectorEffect="non-scaling-stroke"
           style={props.style}
         />
         <g style={{
-          "display": props.mode ? "block" : (props.selected ? "block" : null)
+          "display": (props.selected || snap) ? "block" : null
         }}>
         {
           // Control points on corners
@@ -148,14 +139,9 @@ export default class EditableRectangle extends BaseComponent {
               key={point.name}
               x={point.x}
               y={point.y}
-              mode={props.mode}
+              guide={props.guide}
+              snap={snap}
               selected={props.selected}
-              passThrough={op && op.operation === OperationStore.OPS.DRAW}
-              restrictX={point.restrictX}
-              restrictY={point.restrictY}
-              onDragStart={(args) => point.onDragStart(dispatch, args)}
-              onDrag={(args) => point.onDrag(dispatch, args)}
-              onDragEnd={(args) => point.onDragEnd(dispatch, args)}
             />
           );
         })}

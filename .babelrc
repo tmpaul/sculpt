@@ -4,7 +4,7 @@
   ],
   "plugins": [
     [ "module-resolver", {
-      "root": [ "./src/app" ],
+      "root": [ "./src" ],
     }, "add-module-exports", "transform-decorators-legacy" ],
     "react-hot-loader/babel"
   ],

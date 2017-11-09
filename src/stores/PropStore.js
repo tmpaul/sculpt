@@ -16,11 +16,6 @@ export default class PropStore {
   reset() {
     Object.keys(this._cache).forEach((key) => {
       let value = this._cache[key];
-      if (key !== "0") {
-        value.props = {
-          selected: value.props.selected
-        };
-      }
       this._cache[key] = value;
     });
   }
@@ -57,7 +52,7 @@ export default class PropStore {
    */
   isSelected(componentRefId) {
     let info = this._cache[componentRefId];
-    return !!info.props.selected;
+    return info.mode === "select";
   }
 
   /**
@@ -71,11 +66,11 @@ export default class PropStore {
     // Command key or shift key)
     this.iterate((id, info) => {
       if (this.isSelected(id)) {
-        this._cache[id].props.selected = false;
+        this._cache[id].mode = null;
       }
     });
     if (info) {
-      info.props.selected = targetValue;
+      info.mode = targetValue ? "select" : null;
     }
   }
 

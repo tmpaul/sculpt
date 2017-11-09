@@ -33,11 +33,11 @@ export default (Component) => {
     componentDidMount() {
       let node = ReactDOM.findDOMNode(this);
       this.node = node;
-      var svg   = document.getElementsByTagName('svg');
+      let svg   = document.getElementsByTagName("svg");
       if (svg) {
         svg = svg[0];
-        var svgNS = svg.getAttribute('xmlns');
-        var pt    = svg.createSVGPoint();
+        let svgNS = svg.getAttribute("xmlns");
+        let pt    = svg.createSVGPoint();
         this.pt = pt;
       }
       DomEvents.on(node, "mousedown", this.handleMouseDown);
@@ -96,6 +96,7 @@ export default (Component) => {
         // Callback only if diff has changed.
         if((this.state.x !== (x - this.state.dragOriginX)) || (y !== (e.clientY - this.state.dragOriginY))) {
           this.props.onDrag({
+            origin: [ this.state.dragOriginX, this.state.dragOriginY ],
             x: this.state.x,
             y: this.state.y,
             dx: (restrictX) ? 0 : ((x - this.state.dragOriginX) - this.state.x),
