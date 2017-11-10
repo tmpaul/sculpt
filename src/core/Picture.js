@@ -10,6 +10,7 @@ import PropetyPanelStore from "stores/PropertyPanelStore";
 import StepStore from "stores/StepStore";
 import PropStore from "stores/PropStore";
 import SnappingStore from "stores/SnappingStore";
+import DataStore from "stores/DataStore";
 import ParametersStore from "stores/ParametersStore";
 import EventStoreSingleton from "stores/EventStore";
 import OperationStoreSingleton from "stores/OperationStore";
@@ -47,6 +48,11 @@ export default class Picture {
     this.parametersStore = new ParametersStore();
     // Subscribe
     this.parametersStore.addChangeListener(() => {
+      this.evaluate(this.stepStore.getCurrentIndex());
+      this.emitChange();
+    });
+    this.dataStore = new DataStore();
+    this.dataStore.addChangeListener(() => {
       this.evaluate(this.stepStore.getCurrentIndex());
       this.emitChange();
     });
@@ -604,7 +610,7 @@ export default class Picture {
         });
         break;
       case "LOOP":
-        this.stepStore.runSelected(this, this.emitChange.bind(this));
+        this.stepStore.runSelected(this, this.dataStore.getItemCount(), this.emitChange.bind(this));
         break;
       case "SCALE":
         if (op && op.operation === OperationStoreSingleton.OPS.SCALE) {
@@ -687,6 +693,7 @@ export default class Picture {
       // For each step, run the step
       for (let j = 0; j < steps.length; j++) {
         let step = steps[j];
+        step.iteration = iter;
         // Increment endIndex
         loopEndIndex++;
         if (loopEndIndex > endIndex) {
@@ -909,16 +916,26 @@ export default class Picture {
     this.emitChange();
   }
 
-  getParameterByIndex(index) {
-    return this.parametersStore.getParameterByIndex(index);
+  getExpressionLabel(expression) {
+    switch (expression.type) {
+      case "parameter":
+        let parameter = this.parametersStore.getParameterByIndex(expression.value);
+        return parameter.name;
+      case "rowVariable":
+        let rowVariable = this.dataStore.getRowVariableByIndex(expression.value);
+        return rowVariable;
+    };
   }
 
-  evaluateExpression(expression) {
+  evaluateExpression(expression, loopIndex) {
     switch (expression.type) {
       case "parameter":
         let parameter = this.parametersStore.getParameterByIndex(expression.value);
         // Read in the value and return
         return parameter.value;
+      case "rowVariable":
+        let index = loopIndex === undefined ? this.dataStore.getActiveIndex() : loopIndex;
+        return this.dataStore.data[expression.value][index];
     };
   }
   /**

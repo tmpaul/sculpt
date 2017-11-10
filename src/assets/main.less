@@ -16,7 +16,7 @@ html, body {
   box-sizing: border-box;
 }
 
-#docs {
+#sculpt-root {
   height: 100%;
 }
 
@@ -384,8 +384,11 @@ pre {
     font-weight: inherit;
     color: inherit;
     margin: 0px 5px;
-    background: #fdfde9;
     border-radius: 3px;
+
+    &:hover {
+      background: #fdfdee;
+    };
   }
 }
 
@@ -438,9 +441,11 @@ pre {
 
 .editable-string-input {
   font-size: 12px;
-  padding: 2px 5px;
+  padding: 2px 12px;
   outline: none;
   background: #46bfe8;
+  box-shadow: 0px 1px 2px #6fa1bd;
+  background: linear-gradient(#96c5e6, #89bed8);
   color: #fff;
   font-weight: bold;
   border: none;
@@ -451,10 +456,60 @@ pre {
   &.editing {
     background: #fff;
     color: #46bfe8;
-    box-shadow: 0px 1px 1px 1px rgba(35, 116, 199, 0.5);
+    padding: 0px 5px;
+    font-size: 12px;
   }
 
   &:focus {
     box-shadow: 0px 1px 1px 1px rgba(35, 116, 199, 0.5);
   };
+}
+
+/*
+  Data table
+ */
+.data-table-container {
+  max-width: 100%;
+  overflow-x: scroll;
+}
+table.data-table {
+
+  font-size: 12px;
+
+  tr:hover {
+    background: rgba(222, 222, 222, 0.4);
+  };
+
+  th {
+    font-size: 12px;
+    padding: 2px 5px;
+    outline: none;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    text-align: center;
+    height: 18px;
+    background: #ccc;
+  }
+
+  th.active {
+    background: #46bfe8;
+    background: linear-gradient(#96c5e6, #89bed8);
+    box-shadow: 0px 1px 2px #6fa1bd;
+  }
+
+  th, td {
+    text-align: center;
+    width: 35px;
+  }
+
+  th:first-child {
+    width: 70px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  td:first-child {
+    width: 70px
+  }
 }

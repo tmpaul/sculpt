@@ -61,7 +61,7 @@ export class TitleStepComponent extends BaseComponent {
         onClick={this.props.onClick}
         getSlots={this.getSlotsFunction(step, this.props)}
         onUpdateStep={this.props.onUpdateStep}
-        parameterResolver={this.props.parameterResolver}
+        slotExpressionResolver={this.props.slotExpressionResolver}
         stepStore={this.props.stepStore}
         snappingStore={this.props.snappingStore}
         propStore={this.props.propStore}
@@ -110,7 +110,7 @@ export class CurrentStepComponent extends BaseComponent {
         selected={this.props.selected}
         onClick={this.props.onClick}
         getSlots={this.getSlotsFunction(step, this.props)}
-        parameterResolver={this.props.parameterResolver}
+        slotExpressionResolver={this.props.slotExpressionResolver}
         stepStore={this.props.stepStore}
         snappingStore={this.props.snappingStore}
         propStore={this.props.propStore}

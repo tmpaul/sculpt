@@ -159,7 +159,7 @@ export function evaluateScaleStep(picture, info, step) {
     }
     if (ObjectUtils.isObject(step.scaleY)) {
       // scaleX is an expression, evaluate it from picture
-      scaleY = picture.evaluateExpression(step.scaleY);
+      scaleY = picture.evaluateExpression(step.scaleY, step.iteration);
     } else {
       scaleY = step.scaleY !== undefined ? step.scaleY : 1;
     }

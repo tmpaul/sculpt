@@ -4,15 +4,14 @@ html, body {
 
 body {
   margin: 0px;
-  background: #56CCF2;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #2F80ED, #56CCF2);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #2F80ED, #56CCF2); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: courier;
+  background: #fff;  /* fallback for old browsers */
 }
 
 .wrapper {
   min-height: 100%;
   margin-top: 20px;
-  padding-top: 40px;
+  padding-top: 10px;
 
   /* Equal to height of footer */
   /* But also accounting for potential margin-bottom of last child */
@@ -28,7 +27,7 @@ body {
   color: #212121;
   font-family: serif;
   font-size: 12px;
-  background: rgba(26, 122, 175, 0.44);
+  background: rgba(230, 230, 230, 0.44);
   line-height: 1.5em;
 }
 
@@ -59,8 +58,10 @@ svg .path {
   top: 40px;
 }
 
-#logo-wrapper {
-  animation: swing 2s ease-in alternate infinite;
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #1cbcf1;
 }
 
 svg .path:hover {
@@ -97,63 +98,60 @@ svg .path:hover {
   position: relative;
   font-family: courier;
   font-weight: bold;
-  font-size: 100px;
-  color: #fff;
+  font-size: 70px;
+  color: #1cbcf1;
   transition: all 0.5s ease-in;
-  background: #41a0ef;
-  margin: 0px 10px;
-  padding: 0px 25px;
+  background: transparent;
+  margin: 0px 5px;
+  padding: 0px 10px;
   display: inline-block;
-  box-shadow: 0px 2px 4px rgb(35, 113, 154);
+  text-transform: lowercase;
 }
 
 .logo-text > .character:hover {
-  color: #ececec;
   transition: all 0.3s ease-in;
-  transform: scale(1.05);
+  transform: scale(1.25);
 }
 
 .character:before,
 .character:after {
   content: attr(data-letter);
   position: absolute;
-  left: 25px;
+  left: 10px;
   color: transparent;
   transition: all 0.5s ease-in;
 }
       
-.character:hover:before {
+.character:before {
   -webkit-transform-style: preserve-3d;
-  -webkit-transform: skew(0deg, 3deg);
+  -webkit-transform: skew(0deg, 5deg);
   -webkit-transform-origin:0 100% ;
   -ms-transform-style: preserve-3d;
-  -ms-transform: skew(0deg, 3deg);
+  -ms-transform: skew(0deg, 5deg);
   -ms-transform-origin:0 100% ;
   transform-style:preserve-3d;
-  transform: skew(0deg, 3deg);
+  transform: skew(0deg, 5deg);
   transform-origin:0 100% ;
   /* Both shadows are required for browsers that don't support full spread specs and those that do support full spread specs*/
   text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.25);
   text-shadow:0px 3px 5px 1px rgba(0,0,0,0.25);
 }
 
-.character:hover:after {
+.character:after {
   color: #FFF;
-  background: 
-  -webkit-linear-gradient(left, #FFF, #EEE);
+  background: #ffffff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-transform-style:preserve-3d;
-  -webkit-transform: rotateY(25deg);
+  -webkit-transform: rotateY(30deg);
   -webkit-transform-origin:0 100% ;
-  -ms-linear-gradient(45deg, white, black);
   -ms-background-clip: text;
   -ms-text-fill-color: transparent;
   -ms-transform-style:preserve-3d;
-  -ms-transform: rotateY(25deg);
+  -ms-transform: rotateY(30deg);
   -ms-transform-origin:0 100% ;
   transform-style:preserve-3d;
-  transform: rotateY(25deg);
+  transform: rotateY(30deg);
   transform-origin:0 100% ;
   z-index: 100;
 }

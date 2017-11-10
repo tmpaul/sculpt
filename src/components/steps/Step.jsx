@@ -19,10 +19,7 @@ function getSlotValue(slot, props) {
   } else if (slot.type === "point") {
     return getDescription(slot.value, props);
   } else if (slot.type === "expression") {
-    if (slot.value.type === "parameter") {
-      let parameter = props.parameterResolver(slot.value.value);
-      return parameter.name;
-    }
+    return props.slotExpressionResolver(slot.value);
   }
 }
 
@@ -34,11 +31,11 @@ function setName(id, name, props) {
 }
 
 function getExpressionSlot(slot, i, props) {
-  if (slot.value.type === "parameter") {
-    return (<span className="slot" key={i}>
-    {Parameter.renderSlot(slot, props.parameterResolver(slot.value.value))}
-    </span>);
-  }
+  return (
+    <span key={i} className="editable-string-input">
+        {getSlotValue(slot, props)}
+    </span>
+  );
 }
 
 function processSlot(id, slot, i, props) {
@@ -60,6 +57,7 @@ function processSlot(id, slot, i, props) {
         onChange={(value) => {
           let step = props.step;
           step[slot.attribute] = value;
+          props.onUpdateStep(step);
         }}/>);
     } else {
       return (<span key={i} className="slot" key={i}>{slot.value}</span>);

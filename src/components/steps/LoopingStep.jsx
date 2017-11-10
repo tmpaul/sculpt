@@ -37,6 +37,7 @@ export default function LoopStep(props) {
               step={s}
               single={true}
               selected={props.stepStore.isSelected(stepIndex)}
+              slotExpressionResolver={props.slotExpressionResolver}
               stepStore={props.stepStore}
               snappingStore={props.snappingStore}
               propStore={props.propStore}

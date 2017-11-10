@@ -336,7 +336,7 @@ export default class StepStore extends EventEmitter {
     this._loops[loopStep.loopIndex] = loopStep;
   }
 
-  runSelected(picture, updateCallback) {
+  runSelected(picture, count, updateCallback) {
     // Mark them as part of a loop step.
     let propStore = picture.propStore;
     let snappingStore = picture.snappingStore;
@@ -359,7 +359,7 @@ export default class StepStore extends EventEmitter {
       // Store the endIndex
       endIndex: max,
       // 1 iteration is already complete, because the sub-steps have already executed
-      iteration: 1,
+      iteration: Math.max(count, 1),
       // These steps will act as templates
       steps: selectedSteps
     };
@@ -370,9 +370,7 @@ export default class StepStore extends EventEmitter {
       this.steps[i].loopIndex = loopStep.loopIndex;
     }
     this._selected = [];
-    // Really nothing happens other than LoopStep being updated. The real action occurs in
-    // `runIteration`
-    updateCallback();
+    this.runIteration(loopStep, loopStep.iteration);
   }
 
   getMinMaxSelectedSteps() {

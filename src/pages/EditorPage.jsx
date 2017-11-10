@@ -11,6 +11,7 @@ import Steps from "components/steps/Steps";
 import Picture from "core/Picture";
 import PropertyPanel from "components/PropertyPanel";
 import ParametersPanel from "components/parameters/ParametersPanel";
+import DataTable from "components/data/Table";
 
 export default class EditorPage extends BasePage {
   // *********************************************************
@@ -72,6 +73,21 @@ export default class EditorPage extends BasePage {
                 this.state.picture.parametersStore.setParameter(index, parameter);
               }}
            />
+           <DataTable
+            data={this.state.picture.dataStore.getData()}
+            activeColumn={this.state.picture.dataStore.getActiveIndex()}
+            rowVariables={this.state.picture.dataStore.getRowVariables()}
+            onRowVariableChange={(index, name) => {
+              this.state.picture.dataStore.updateRowVariable(index, name);
+            }}
+            onColumnClick={(i) => {
+              this.state.picture.dataStore.setActiveIndex(i);
+            }}
+            updateTableData={({ rowVariables, data }) => {
+              this.state.picture.dataStore.setRowVariables(rowVariables);
+              this.state.picture.dataStore.setData(data);
+            }}
+           />
            {
             // Render a list of parameters. Allows user to add more parameters.
             // All added parameters will be exposed to outside world for control.
@@ -79,7 +95,7 @@ export default class EditorPage extends BasePage {
           <Steps 
             stepStore={this.state.picture.stepStore}
             snappingStore={this.state.picture.snappingStore}
-            parameterResolver={this.state.picture.getParameterByIndex.bind(this.state.picture)}
+            slotExpressionResolver={this.state.picture.getExpressionLabel.bind(this.state.picture)}
             propStore={this.state.picture.propStore}
           />
         </div>
@@ -89,7 +105,7 @@ export default class EditorPage extends BasePage {
               stepStore={this.state.picture.stepStore}
               snappingStore={this.state.picture.snappingStore}
               onUpdateStep={this.state.picture.updateTitleStep.bind(this.state.picture)}
-              parameterResolver={this.state.picture.getParameterByIndex.bind(this.state.picture)}
+              slotExpressionResolver={this.state.picture.getExpressionLabel.bind(this.state.picture)}
               propStore={this.state.picture.propStore}
             />
             {

@@ -11,7 +11,7 @@ export default class EditableStringInput extends BaseComponent {
     this.state = {
       editing: true
     };
-    this.blur = debounce(this._blur.bind(this), 2000);
+    this.blur = debounce(this._blur.bind(this), 500);
   }
   // *********************************************************
   // React methods
@@ -27,8 +27,8 @@ export default class EditableStringInput extends BaseComponent {
         className="editable-string-input editing"
         value={this.props.value}
         onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this._blur}
-        size={this.props.value ? this.props.value.length : undefined}
+        onMouseLeave={this.blur}
+        size={this.props.value !== undefined ? (this.props.value.length + 1) : 1}
         onChange={this.handleChange}
       />
     ) : (
@@ -37,8 +37,9 @@ export default class EditableStringInput extends BaseComponent {
         onDragStart={this.handleDragStart}
         onClick={this.handleClick}
         style={{
-          width: this.state.width,
-          height: this.state.height
+          display: "inline-block"
+          // width: this.state.width,
+          // height: this.state.height
         }}
         className="editable-string-input">
         {this.props.value}
@@ -74,9 +75,7 @@ export default class EditableStringInput extends BaseComponent {
   _blur() {
     this.input.blur();
     this.setState({
-      editing: false,
-      width: this.input.offsetWidth,
-      height: this.input.offsetHeight
+      editing: false
     });
   }
 };

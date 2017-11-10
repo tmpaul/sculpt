@@ -6,4 +6,14 @@ import "assets/main.less";
 
 // Needed for React Developer Tools
 window.React = React;
+
+// Prevent file drop into random areas
+window.addEventListener("dragover",function(e) {
+  e = e || event;
+  e.preventDefault();
+},false);
+window.addEventListener("drop",function(e) {
+  e = e || event;
+  e.preventDefault();
+},false);
 ReactDOM.render(AppRoutes, document.getElementById("sculpt-root"));
