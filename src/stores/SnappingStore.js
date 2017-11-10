@@ -58,10 +58,6 @@ export default class SnappingStore extends EventEmitter {
    * @return {String}         The description of the point (i.e component name and point name)
    */
   getPointDescription(pointId) {
-    if (!pointId) {
-      let point = this.snappingStore.getPoint(pointId);
-      return point.pointX + "," + point.pointY; 
-    }
     let split = pointId.split(":");
     let componentId = split[0];
     // The last split element is the name of the point. Everything else is componentId

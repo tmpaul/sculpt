@@ -171,3 +171,17 @@ export function syncPoint(propStore, snappingStore, sourcePoint) {
   }
   return result;
 }
+
+/**
+ * Given a pointId return its textual description
+ * @param  {Object} propStore The property store
+ * @param  {String} pointId   The id of the point to describe
+ * @return {String}           The textual description of the point
+ */
+export function getPointDescription(propStore, pointId) {
+  let split = pointId.split(":");
+  let componentId = split[0];
+  // The last split element is the name of the point. Everything else is componentId
+  let info = propStore.getInfo(componentId);
+  return info.name + "'s " + split[1];
+};

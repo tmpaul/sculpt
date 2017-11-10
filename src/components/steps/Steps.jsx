@@ -37,6 +37,7 @@ export default class Steps extends BaseComponent {
                   stepStore={this.props.stepStore}
                   snappingStore={this.props.snappingStore}
                   propStore={this.props.propStore}
+                  parameterResolver={this.props.parameterResolver}
                 />
               );
             }
@@ -48,6 +49,7 @@ export default class Steps extends BaseComponent {
                   stepStore={this.props.stepStore}
                   snappingStore={this.props.snappingStore}
                   propStore={this.props.propStore}
+                  parameterResolver={this.props.parameterResolver}
                   onClick={this.handleClick.bind(null, index)}
                 />
               </li>

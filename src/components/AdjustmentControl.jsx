@@ -1,5 +1,6 @@
 import BaseComponent from "core/BaseComponent";
 import ReactDOM from "react-dom";
+import BlurInput from "components/BlurInput";
 
 export default class AdjustmentControl extends BaseComponent {
 
@@ -13,6 +14,7 @@ export default class AdjustmentControl extends BaseComponent {
     let x0 = (190) * (props.value - min) / (max -  min);
     this.state = {
       active: false,
+      edit: false,
       x0,
       x: x0,
       value: props.value,
@@ -79,15 +81,47 @@ export default class AdjustmentControl extends BaseComponent {
               left: this.state.x
             }}/>
           </span>)}
-          <span ref={(el) => this.el = el} 
+          {this.state.edit ? (
+            <BlurInput
+              size={5}
+              className="adjustment-control-value"
+              defaultValue={this.state.value.toFixed(3)}
+              onBlur={() => this.setState({
+                edit: false
+              })}
+              onChange={this.setinputValue}
+            />
+          ) : (<span 
+            ref={(el) => this.el = el} 
             className="adjustment-control-value"
+            onClick={this.setEdit}
             onDragOver={droppable ? this.allowDrop : BaseComponent.NOOP} 
             onDrop={droppable ? this.drop : BaseComponent.NOOP}
             onMouseLeave={this.handleMouseLeave}
             onMouseEnter={this.handleMouseEnter}>
             {this.state.value.toFixed(3)}
-          </span>
+          </span>)}
         </span>);
+  }
+
+  setEdit() {
+    this.setState({
+      edit: true
+    });
+    this.stopDrag();
+  }
+
+  setinputValue(event) {
+    try {
+      let value = eval(event.target.value);
+      this.setState({ 
+        value
+      }, () => {
+        this.props.onChange(value);
+      });
+    } catch(e) {
+
+    }
   }
 
   allowDrop(event) {
@@ -109,7 +143,8 @@ export default class AdjustmentControl extends BaseComponent {
     this.setState({
       active: false,
       p0: undefined,
-      x0: this.state.x
+      x0: this.state.x,
+      waitingForShiftKey: false
     });
     document.body.style.cursor = "auto";
     document.body.style.userSelect = undefined;

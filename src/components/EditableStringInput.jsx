@@ -26,7 +26,8 @@ export default class EditableStringInput extends BaseComponent {
         ref={this.setInputRef}
         className="editable-string-input editing"
         value={this.props.value}
-        onFocus={this.blur}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this._blur}
         size={this.props.value ? this.props.value.length : undefined}
         onChange={this.handleChange}
       />
@@ -50,7 +51,10 @@ export default class EditableStringInput extends BaseComponent {
   handleChange(event) {
     let value = event.target.value;
     this.props.onChange(value);
-    this.blur();
+  }
+
+  handleMouseEnter() {
+    this.input.focus();
   }
 
   setInputRef(el) {
@@ -65,7 +69,6 @@ export default class EditableStringInput extends BaseComponent {
     this.setState({
       editing: true
     });
-    this.blur();
   }
 
   _blur() {

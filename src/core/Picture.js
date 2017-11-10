@@ -903,6 +903,16 @@ export default class Picture {
     return step;
   }
 
+  updateTitleStep(step) {
+    this.stepStore.updateCurrentStep(step);
+    this.evaluate(this.stepStore.getCurrentIndex());
+    this.emitChange();
+  }
+
+  getParameterByIndex(index) {
+    return this.parametersStore.getParameterByIndex(index);
+  }
+
   evaluateExpression(expression) {
     switch (expression.type) {
       case "parameter":

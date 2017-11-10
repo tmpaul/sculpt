@@ -1,12 +1,13 @@
 import AdjustmentControl from "components/AdjustmentControl";
 import Parameter from "components/parameters/Parameter";
+import { getPointDescription } from "utils/PointUtils";
 
 function getDescription(pointObject, props) {
   if (!pointObject) {
     return;
   }
   if (pointObject.pointId) {
-    return props.snappingStore.getPointDescription(pointObject.pointId);
+    return getPointDescription(props.propStore, pointObject.pointId);
   } else {
     return pointObject.x + "," + pointObject.y;
   }
@@ -19,7 +20,7 @@ function getSlotValue(slot, props) {
     return getDescription(slot.value, props);
   } else if (slot.type === "expression") {
     if (slot.value.type === "parameter") {
-      let parameter = window.picture.parametersStore.getParameterByIndex(slot.value.value);
+      let parameter = props.parameterResolver(slot.value.value);
       return parameter.name;
     }
   }
@@ -29,15 +30,13 @@ function setName(id, name, props) {
   props.propStore.setInfo(id, {
     name
   });
-  let step = props.stepStore.getCurrentStep();
-  // Copies info over
-  props.stepStore.updateCurrentStep(step);
+  props.onUpdateStep(props.step);
 }
 
-function getExpressionSlot(slot, i) {
+function getExpressionSlot(slot, i, props) {
   if (slot.value.type === "parameter") {
     return (<span className="slot" key={i}>
-    {Parameter.renderSlot(slot, window.picture.parametersStore.getParameterByIndex(slot.value.value))}
+    {Parameter.renderSlot(slot, props.parameterResolver(slot.value.value))}
     </span>);
   }
 }
@@ -56,28 +55,23 @@ function processSlot(id, slot, i, props) {
         onDrop={(data) => {
           let step = props.step;
           step[slot.attribute] = data;
-          // Copies info over
-          props.stepStore.updateCurrentStep(step);
-          window.picture.evaluate(props.stepStore.steps.length);
-          window.picture.emitChange();
+          props.onUpdateStep(step);
         }}
         onChange={(value) => {
           let step = props.step;
           step[slot.attribute] = value;
-          // Copies info over
-          props.stepStore.updateCurrentStep(step);
-          window.picture.evaluate(props.stepStore.steps.length);
-          window.picture.emitChange();
         }}/>);
     } else {
       return (<span key={i} className="slot" key={i}>{slot.value}</span>);
     }
   } else if (slot.type === "expression") {
-    return getExpressionSlot(slot, i);
+    return getExpressionSlot(slot, i, props);
   } else if (slot.type === "point") {
     return (<span className="slot" key={i}>{getDescription(slot.value, props)}</span>);
   } else if (slot.type === "name") {
-    return (<input className="slot slot-input" size={Math.max(slot.value.length, 1)} 
+    return (<input 
+      className="slot slot-input" 
+      size={Math.max(slot.value.length, 1)} 
       key={i} value={slot.value} onChange={(e) => setName(id, e.target.value, props)}/>);
   }
 }

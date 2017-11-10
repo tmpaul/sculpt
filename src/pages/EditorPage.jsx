@@ -35,7 +35,6 @@ export default class EditorPage extends BasePage {
         height: 420
       }
     });
-    window.picture = this.state.picture;
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
   }
@@ -80,6 +79,7 @@ export default class EditorPage extends BasePage {
           <Steps 
             stepStore={this.state.picture.stepStore}
             snappingStore={this.state.picture.snappingStore}
+            parameterResolver={this.state.picture.getParameterByIndex.bind(this.state.picture)}
             propStore={this.state.picture.propStore}
           />
         </div>
@@ -88,6 +88,8 @@ export default class EditorPage extends BasePage {
             <TitleStepComponent
               stepStore={this.state.picture.stepStore}
               snappingStore={this.state.picture.snappingStore}
+              onUpdateStep={this.state.picture.updateTitleStep.bind(this.state.picture)}
+              parameterResolver={this.state.picture.getParameterByIndex.bind(this.state.picture)}
               propStore={this.state.picture.propStore}
             />
             {
