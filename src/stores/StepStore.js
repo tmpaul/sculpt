@@ -102,6 +102,14 @@ export default class StepStore extends EventEmitter {
           step.target.pointId = changePointId(step.target.pointId, componentMap);
         }
         break;
+      case "ROTATE":
+        if (step.source && step.source.pointId) {
+          step.source.pointId = changePointId(step.source.pointId, componentMap);
+        }
+        if (step.target && step.target.pointId) {
+          step.target.pointId = changePointId(step.target.pointId, componentMap);
+        }
+        break;
       case "SCALE":
         if (step.source && step.source.pointId) {
           step.source.pointId = changePointId(step.source.pointId, componentMap);
@@ -198,7 +206,7 @@ export default class StepStore extends EventEmitter {
         // Update the current step and all corresponding steps in previous iterations
         let substepIndex = index - (loopStep.startIndex + (loopStep.iteration - 1) * loopStep.steps.length);
         let fresh = true;
-        if (loopStep.steps[substepIndex] && loopStep.steps[substepIndex].componentId === step.componentId) {
+        if (loopStep.steps[substepIndex] && loopStep.componentMap[loopStep.steps[substepIndex].componentId] === step.componentId) {
           // We already inserted the step, do not set _index.
           fresh = false;
         }

@@ -65,7 +65,9 @@ export default class EditorPage extends BasePage {
       }}>
         <div className="nav" style={{
           position: "absolute",
-          minHeight: "100%"
+          minHeight: "100%",
+          maxHeight: "100%",
+          overflowY: "scroll"
         }}>
            <ParametersPanel
               parameters={this.state.picture.parametersStore.getParameters()}
