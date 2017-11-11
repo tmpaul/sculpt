@@ -86,6 +86,7 @@ export default class EditorPage extends BasePage {
             updateTableData={({ rowVariables, data }) => {
               this.state.picture.dataStore.setRowVariables(rowVariables);
               this.state.picture.dataStore.setData(data);
+              this.state.picture.evaluate(this.state.picture.stepStore.getCurrentIndex());
             }}
            />
            {

@@ -153,7 +153,7 @@ export function evaluateScaleStep(picture, info, step) {
     // There is no target point use scaleX, scaleY
     if (ObjectUtils.isObject(step.scaleX)) {
       // scaleX is an expression, evaluate it from picture
-      scaleX = picture.evaluateExpression(step.scaleX);
+      scaleX = picture.evaluateExpression(step.scaleX, step.iteration);
     } else {
       scaleX = step.scaleX !== undefined ? step.scaleX : 1;
     }

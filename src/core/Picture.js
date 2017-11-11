@@ -892,9 +892,7 @@ export default class Picture {
 
     // Return the updated step and info
     this.propStore.setInfo(step.componentId, info);
-    if (step.active) {
-      this.propStore.setSelectionState(step.componentId, true);
-    }
+    this.propStore.setSelectionState(step.componentId, true);
     // Return the updated step
     // After handlers
     if (!step.active || step.loopIndex !== undefined) {

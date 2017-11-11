@@ -9,9 +9,9 @@ export default class EditableStringInput extends BaseComponent {
     super(props, ...args);
     this.autoBind();
     this.state = {
-      editing: true
+      editing: false
     };
-    this.blur = debounce(this._blur.bind(this), 500);
+    this.blur = debounce(this._blur.bind(this), 1000);
   }
   // *********************************************************
   // React methods
@@ -21,29 +21,19 @@ export default class EditableStringInput extends BaseComponent {
   }
 
   render() {
-    return this.state.editing ? (
+    return (
       <input
         ref={this.setInputRef}
-        className="editable-string-input editing"
-        value={this.props.value}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.blur}
-        size={this.props.value !== undefined ? (this.props.value.length + 1) : 1}
-        onChange={this.handleChange}
-      />
-    ) : (
-      <span
-        draggable
-        onDragStart={this.handleDragStart}
         onClick={this.handleClick}
-        style={{
-          display: "inline-block"
-          // width: this.state.width,
-          // height: this.state.height
-        }}
-        className="editable-string-input">
-        {this.props.value}
-      </span>
+        className="editable-string-input"
+        draggable={!this.state.editing}
+        onDragStart={this.handleDragStart}
+        value={this.props.value}
+        onMouseLeave={this.blur}
+        size={this.props.value !== undefined ? (Math.max(this.props.value.length, 1)) : 1}
+        onChange={this.handleChange}
+        readOnly={!this.state.editing}
+      />
     );
   }
   // *********************************************************
@@ -54,22 +44,27 @@ export default class EditableStringInput extends BaseComponent {
     this.props.onChange(value);
   }
 
-  handleMouseEnter() {
-    this.input.focus();
-  }
-
   setInputRef(el) {
     this.input = el;
   }
 
   handleDragStart(event) {
-    this.props.onDrag(event);
+    if (!this.state.editing) {
+      this.props.onDrag(event);
+    }
   }
 
   handleClick() {
-    this.setState({
-      editing: true
-    });
+    if (!this.state.editing) {
+      this.setState({
+        editing: true
+      });
+      this.input.focus();
+      // https://stackoverflow.com/questions/511088/use-javascript-to-place-cursor-at-end-of-text-in-text-input-element
+      setTimeout(() => {
+        this.input.selectionStart = this.input.selectionEnd = 10000; 
+      }, 0);
+    }
   }
 
   _blur() {
