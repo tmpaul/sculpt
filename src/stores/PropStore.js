@@ -16,7 +16,11 @@ export default class PropStore {
   reset() {
     Object.keys(this._cache).forEach((key) => {
       if (key !== "0") {
-        this._cache[key] = {};
+        let value = this._cache[key];
+        this._cache[key] = {
+          type: value.type,
+          name: value.name
+        };
       }
     });
   }

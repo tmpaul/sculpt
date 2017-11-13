@@ -1,5 +1,20 @@
 import { EventEmitter } from "events";
 
+function average(args) {
+  let sum = 0;
+  args.forEach((arg) => {
+    sum += arg;
+  });
+  return sum / args.length;
+}
+
+const statNames = {
+  "min": "Minimum of ",
+  "max": "Maximum of ",
+  "# of items": "Number of ",
+  "average": "Average of "
+};
+
 export default class DataStore extends EventEmitter {
 
   // ***********************************************
@@ -41,11 +56,41 @@ export default class DataStore extends EventEmitter {
   }
 
   getRowVariables() {
-    return this.rowVars;
+    return this.rowVars.map((rowVar, index) => {
+      return this.getRowVariableByIndex(index);
+    });
   }
 
   getRowVariableByIndex(index) {
-    return this.rowVars[index];
+    let rowVar = this.rowVars[index];
+    return {
+      name: rowVar,
+      stats: [ "min", "max", "average", "# of items" ].map((stat) => {
+        return {
+          name: statNames[stat] + rowVar,
+          type: stat,
+          value: this.getRowVariableStatistic(index, stat)
+        };
+      }) 
+    };
+  }
+
+  getRowVariableStatistic(index, statVariable) {
+    let dataRow = this.data[index];
+    switch (statVariable) {
+      case "min":
+        return Math.min.apply(null, dataRow);
+      case "max":
+        return Math.max.apply(null, dataRow);
+      case "average":
+        return average(dataRow);
+      case "# of items":
+        return dataRow.length;
+    }
+  }
+
+  getRowVariableStatisticLabel(index, statVariable) {
+    return statNames[statVariable] + this.rowVars[index];
   }
 
   setRowVariables(value) {

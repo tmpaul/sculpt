@@ -77,13 +77,14 @@ export default class StepStore extends EventEmitter {
   }
 
   remapStep(step, targetComponentId, existingComponentMap) {
-    let componentMap = {
-      [step.componentId]: targetComponentId
-    };
+    let componentMap = {};
+    if (targetComponentId) {
+      componentMap[step.componentId] = targetComponentId;
+      step.componentId = targetComponentId;
+    }
     Object.keys(existingComponentMap).map((key) => {
       componentMap[existingComponentMap[key]] = key;
     });
-    step.componentId = targetComponentId;
     switch (step.type) {
       case "DRAW":
         // Map points based on componentMap
@@ -220,9 +221,13 @@ export default class StepStore extends EventEmitter {
               let drawStepCount = loopStep.steps.filter((step) => step.type === "DRAW").length;
               firstComponentId = "0." + (Number(step.componentId.split(".")[1]) - (loopStep.iteration - 1) * drawStepCount);
             } else {
-              // Simply wind back to first iteration and get its componentId
-              let firstStep = this.steps[substepIndex + loopStep.startIndex - 1];
-              firstComponentId = firstStep.componentId;
+              // There is no equivalent step in first iteration, we need to map the current
+              // componentId
+              let reverseComponentMap = {};
+              Object.keys(loopStep.componentMap).map((key) => {
+                reverseComponentMap[loopStep.componentMap[key]] = key;
+              });
+              firstComponentId = reverseComponentMap[step.componentId];
             }
             // Remap the componentId of step as well as `source` and `target` depending on the
             // type of the step.

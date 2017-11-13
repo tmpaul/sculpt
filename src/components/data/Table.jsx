@@ -1,5 +1,6 @@
 import BaseComponent from "core/BaseComponent";
 import EditableStringInput from "components/EditableStringInput";
+import TableRowVariable from "components/data/TableRowVariable";
 import { processFile } from "utils/FileUtils";
 
 export default class Table extends BaseComponent {
@@ -31,11 +32,15 @@ export default class Table extends BaseComponent {
           </thead>
           <tbody>
             {data.map((row, rowIndex) => {
+              let rowVariable = rowVars[rowIndex] || {};
               return (
                 <tr key={rowIndex}>
                   <td key="variable">
-                    <EditableStringInput
-                      value={String(rowVars[rowIndex] === undefined ? rowIndex : rowVars[rowIndex])}
+                    <TableRowVariable
+                      variable={{
+                        name: rowVariable.name,
+                        stats: rowVariable.stats
+                      }}
                       onDrag={this.onDrag.bind(null, rowIndex)}
                       onChange={this.props.onRowVariableChange.bind(null, rowIndex)}
                     />
@@ -52,12 +57,13 @@ export default class Table extends BaseComponent {
     );
   }
 
-  onDrag(rowIndex, event) {
+  onDrag(rowIndex, event, varType, varName) {
     event.dataTransfer.setData("text/plain", JSON.stringify({
-      type: "rowVariable",
+      type: varType,
       // We only pass the index. To avoid duplicates, the Step
       // component will always fetch 
-      value: rowIndex
+      index: rowIndex,
+      statVariable: varType === "rowVariableStatistic" ? varName : undefined
     }));
   }
 

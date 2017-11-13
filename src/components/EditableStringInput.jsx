@@ -70,7 +70,9 @@ export default class EditableStringInput extends BaseComponent {
   }
 
   _blur() {
-    this.input.blur();
+    if (this.input) {
+      this.input.blur();
+    }
     this.setState({
       editing: false
     });

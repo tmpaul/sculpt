@@ -532,7 +532,7 @@ table.data-table {
   }
 
   .rich-expression-editor.editing ~ .unit {
-    background: #f0f575;
+    background: #fdffd1;
   }
 
   .rich-expression-editor:focus ~ .cursor {
@@ -577,4 +577,54 @@ table.data-table {
     height: auto;
     width: auto;
     white-space: nowrap; /* Thanks to Herb Caudill comment */
+}
+
+.row-variable-dropdown {
+  position: absolute;
+  margin-top: 2px;
+  background: rgb(253, 253, 253);
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+  width: 200px;
+  padding: 0px;
+
+  .parameter-row {
+    padding: 10px;
+  }
+
+  .parameter-value {
+    text-align: right;
+    font-size: 12px;
+  }
+}
+
+.arrow {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.arrow-up {
+  width: 0; 
+  height: 0; 
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  display: inline-block;
+  border-bottom: 6px solid #d2d2d2;
+
+  &:hover {
+    border-bottom-color: #78b4d9;
+  };
+}
+
+.arrow-down {
+  width: 0; 
+  height: 0; 
+  display: inline-block;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  
+  border-top: 6px solid #d2d2d2;
+
+  &:hover {
+    border-top-color: #78b4d9;
+  };
 }

@@ -25,9 +25,8 @@ function getSlotValue(slot, props) {
 }
 
 function setName(id, name, props) {
-  props.propStore.setInfo(id, {
-    name
-  });
+  props.step.info = props.step.info || {};
+  props.step.info.name = name;
   props.onUpdateStep(props.step);
 }
 

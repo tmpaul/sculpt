@@ -915,13 +915,20 @@ export default class Picture {
   }
 
   getExpressionLabel(expression) {
+    if (Array.isArray(expression)) {
+      return expression.map((e) => {
+        return this.getExpressionLabel(e);
+      }).join("");
+    }
     switch (expression.type) {
       case "parameter":
         let parameter = this.parametersStore.getParameterByIndex(expression.value);
         return parameter.name;
       case "rowVariable":
-        let rowVariable = this.dataStore.getRowVariableByIndex(expression.value);
-        return rowVariable;
+        let rowVariable = this.dataStore.getRowVariableByIndex(expression.index);
+        return rowVariable.name;
+      case "rowVariableStatistic":
+        return this.dataStore.getRowVariableStatisticLabel(expression.index, expression.statVariable);
       default:
         return expression;
     };
@@ -947,7 +954,9 @@ export default class Picture {
         return parameter.value;
       case "rowVariable":
         let index = loopIndex === undefined ? this.dataStore.getActiveIndex() : loopIndex;
-        return this.dataStore.data[expression.value][index];
+        return this.dataStore.data[expression.index][index];
+      case "rowVariableStatistic":
+        return this.dataStore.getRowVariableStatistic(expression.index, expression.statVariable);
       default:
         return expression;
     };

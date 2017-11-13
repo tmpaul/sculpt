@@ -81,7 +81,7 @@ export default class RichExpressionEditor extends BaseComponent {
           onDragOver={this.handleDragOver}
           onDrop={this.handleDrop}
           onKeyPress={this.handleKeyPress}
-          onKeyUp={this.handleKeyUp}
+          onKeyDown={this.handleKeyDown}
           onPaste={this.handlePaste}
           onChange={BaseComponent.NOOP}
         />
@@ -187,7 +187,7 @@ export default class RichExpressionEditor extends BaseComponent {
     return ranges;
   }
 
-  handleKeyUp(event) {
+  handleKeyDown(event) {
     let cursorIndex = this.state.cursorIndex;
     switch (event.keyCode) {
       case 8:
@@ -204,7 +204,7 @@ export default class RichExpressionEditor extends BaseComponent {
           let ranges = this.getRecordRanges(this.props.expressions);
           let newExpressions = [];
           ranges.forEach((range, i) => {
-            if (!(range.min > start && range.min <= end)) {
+            if (!(range.min >= start && range.min <= end)) {
               newExpressions.push(this.props.expressions[i]);
             }
           });
@@ -250,11 +250,12 @@ export default class RichExpressionEditor extends BaseComponent {
           // Pure number
         } catch (e) {
           // Empty expresssion
-          if (this.props.expressions.join("").replace(/\s/g, "").length) {
+          let text = this.props.expressions.join("").replace(/\s/g, "");
+          if (text.length) {
             this.setState({
               editMode: true
             });
-          } 
+          }
         }
         break;
     }
