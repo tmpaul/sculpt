@@ -22,6 +22,12 @@ body {
 .nav {
   position: fixed !important;
   top: 0px;
+  background: #fff !important;
+  border: none !important;
+}
+
+.toolbar {
+  border: none !important;
 }
 
 .footer {
