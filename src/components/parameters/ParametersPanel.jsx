@@ -27,6 +27,7 @@ export default class ParametersPanel extends BaseComponent {
               key={index}
               name={parameter.name}
               value={parameter.value}
+              expressionResolver={this.props.expressionResolver}
               onDrag={this.handleDrag.bind(null, index)}
               onRemove={this.handleRemove.bind(null, index)}
               onChange={this.handleChange.bind(null, index)}
@@ -71,7 +72,7 @@ export default class ParametersPanel extends BaseComponent {
 
   handleDrag(index, event) {
     let parameter = this.props.parameters[index];
-    event.dataTransfer.setData("text/plain", JSON.stringify({
+    event.dataTransfer.setData("text", JSON.stringify({
       type: "parameter",
       // We only pass the index. To avoid duplicates, the Step
       // component will always fetch 

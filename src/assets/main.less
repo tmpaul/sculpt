@@ -380,11 +380,9 @@ pre {
   .adjustment-control-value {
     outline: none;
     border: none;
-    font-family: monospace;
-    font-size: inherit;
-    font-weight: inherit;
-    color: inherit;
-    margin: 0px 5px;
+    font-family: courier;
+    font-size: 12px;
+    margin: 0px 3px;
     border-radius: 3px;
 
     &:hover {
@@ -513,4 +511,70 @@ table.data-table {
   td:first-child {
     width: 70px
   }
+}
+
+.rich-expression-editor-container {
+  position: relative;
+  margin: 0px 3px;
+  user-select: none;
+  -webkit-user-select: none;
+
+  .rich-expression-editor {
+    position: absolute;
+    top: 2px;
+    background: transparent;
+    font-family: courier;
+    font-size: 12px;
+    border: none;
+    outline: none;
+    color: transparent;
+    left: -1px;
+  }
+
+  .rich-expression-editor.editing ~ .unit {
+    background: #f0f575;
+  }
+
+  .rich-expression-editor:focus ~ .cursor {
+    visibility: visible;;
+  }
+
+  .cursor {
+    visibility: hidden;
+    position: absolute;
+    width: 0px;
+    height: 100%;
+    display: inline-block;
+    top: 3px;
+    height: 15px;
+    border-right: 1px solid #000;
+    box-sizing: content-box;
+    animation: blink 0.5s linear infinite alternate;
+  }
+
+  .unit {
+    font-family: courier;
+    user-select: none;
+    -webkit-user-select: none;
+    font-size: 12px;
+    white-space: pre;
+  }
+}
+
+@keyframes blink {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#character-width-test
+{
+    position: absolute;
+    visibility: hidden;
+    height: auto;
+    width: auto;
+    white-space: nowrap; /* Thanks to Herb Caudill comment */
 }

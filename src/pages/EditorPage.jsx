@@ -71,6 +71,7 @@ export default class EditorPage extends BasePage {
         }}>
            <ParametersPanel
               parameters={this.state.picture.parametersStore.getParameters()}
+              expressionResolver={this.state.picture.getExpressionLabel.bind(this.state.picture)}
               onParameterChange={(index, parameter) => {
                 this.state.picture.parametersStore.setParameter(index, parameter);
               }}

@@ -50,6 +50,8 @@ export default class EditableStringInput extends BaseComponent {
 
   handleDragStart(event) {
     if (!this.state.editing) {
+      event.dataTransfer.effectAllowed = "all";
+      event.dataTransfer.dropEffect = "link";
       this.props.onDrag(event);
     }
   }

@@ -2,6 +2,7 @@ import { PropTypes } from "react";
 import BaseComponent from "core/BaseComponent";
 import { ObjectUtils } from "utils/GenericUtils";
 import AdjustmentControl from "components/AdjustmentControl";
+import RichExpressionEditor from "components/RichExpressionEditor";
 import { isColor } from "utils/ColorUtils";
 import EditableStringInput from "components/EditableStringInput";
 
@@ -57,10 +58,10 @@ export default class Parameter extends BaseComponent {
           />
         </div>
         <div className="parameter-value">
-          <AdjustmentControl
-            value={value || 0}
-            sensitivity={0.4}
-            onChange={this.handleValueChange}
+          <RichExpressionEditor
+            expressionResolver={this.props.expressionResolver}
+            expressions={Array.isArray(value) ? value : [ value ]}
+            onUpdate={this.handleValueChange}
           />
         </div>
       </div>
@@ -89,7 +90,7 @@ export default class Parameter extends BaseComponent {
 
   addNew() {
     this.props.onChange("name", "key");
-    this.props.onChange("value", "");
+    this.props.onChange("value", 0.0);
   }
 
   ascertainValueType(value) {

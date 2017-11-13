@@ -5,7 +5,8 @@ import BlurInput from "components/BlurInput";
 export default class AdjustmentControl extends BaseComponent {
 
   static defaultProps = {
-    sensitivity: 1
+    sensitivity: 1,
+    onEdit: BaseComponent.NOOP
   };
 
   constructor(props, ...args) {
@@ -81,61 +82,50 @@ export default class AdjustmentControl extends BaseComponent {
               left: this.state.x
             }}/>
           </span>)}
-          {this.state.edit ? (
-            <BlurInput
-              size={5}
-              className="adjustment-control-value"
-              defaultValue={this.state.value.toFixed(3)}
-              onBlur={() => this.setState({
-                edit: false
-              })}
-              onChange={this.setinputValue}
-            />
-          ) : (<span 
+          <span 
             ref={(el) => this.el = el} 
             className="adjustment-control-value"
-            onClick={this.setEdit}
-            onDragOver={droppable ? this.allowDrop : BaseComponent.NOOP} 
+            onClick={this.props.onEdit}
+            onDragOver={droppable ? this.allowDrop : BaseComponent.NOOP}
             onDrop={droppable ? this.drop : BaseComponent.NOOP}
             onMouseLeave={this.handleMouseLeave}
             onMouseEnter={this.handleMouseEnter}>
             {this.state.value.toFixed(3)}
-          </span>)}
+          </span>
         </span>);
   }
 
-  setEdit() {
-    this.setState({
-      edit: true
-    });
-    this.stopDrag();
-  }
+  // setEdit() {
+  //   this.setState({
+  //     edit: true
+  //   });
+  //   this.stopDrag();
+  // }
 
-  setinputValue(event) {
-    try {
-      let value = eval(event.target.value);
-      this.setState({ 
-        value
-      }, () => {
-        this.props.onChange(value);
-      });
-    } catch(e) {
-
-    }
-  }
+  // setinputValue(event) {
+  //   try {
+  //     let value = eval(event.target.value);
+  //     this.setState({ 
+  //       value
+  //     }, () => {
+  //       this.props.onChange(value);
+  //     });
+  //   } catch(e) {
+  //     this.props.onChange(event.target.value);
+  //   }
+  // }
 
   allowDrop(event) {
     event.preventDefault();
+    event.dataTransfer.dropEffect = "link";
   }
 
   drop(event) {
-    event.preventDefault();
-    let data = JSON.parse(event.dataTransfer.getData("text/plain"));
     // AdjustmentControl does not really care about what expression
     // is dropped, that is upto the step evaluator to care. Just insert
     // the appropriate component
     if (this.props.onDrop) {
-      this.props.onDrop(data);
+      this.props.onDrop(event);
     }
   }
 

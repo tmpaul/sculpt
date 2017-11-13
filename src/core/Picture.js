@@ -922,10 +922,24 @@ export default class Picture {
       case "rowVariable":
         let rowVariable = this.dataStore.getRowVariableByIndex(expression.value);
         return rowVariable;
+      default:
+        return expression;
     };
   }
 
   evaluateExpression(expression, loopIndex) {
+    if (expression === undefined) {
+      return undefined;
+    }
+    if (Array.isArray(expression)) {
+      try {
+        // Run over each component and fetch value
+        let finalExp = expression.map((e) => this.evaluateExpression(e, loopIndex)).join("");
+        return eval(finalExp);
+      } catch (e) {
+        return;
+      }
+    }
     switch (expression.type) {
       case "parameter":
         let parameter = this.parametersStore.getParameterByIndex(expression.value);
@@ -934,6 +948,8 @@ export default class Picture {
       case "rowVariable":
         let index = loopIndex === undefined ? this.dataStore.getActiveIndex() : loopIndex;
         return this.dataStore.data[expression.value][index];
+      default:
+        return expression;
     };
   }
   /**

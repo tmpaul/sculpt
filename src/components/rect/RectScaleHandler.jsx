@@ -1,6 +1,7 @@
 import { ObjectUtils } from "utils/GenericUtils";
 import { detectSnapping, toSourcePoint, closestSelfControlPoint, 
   getPointNameFromPointId, getComponentIdFromPointId } from "utils/PointUtils";
+import { isNumeric } from "utils/TypeUtils";
 
 const opposite = {
   left: "right",
@@ -151,15 +152,17 @@ export function evaluateScaleStep(picture, info, step) {
     scaleY = Math.abs(aboutPoint.y - targetPoint.y) / step.initialProps.height;
   } else {
     // There is no target point use scaleX, scaleY
-    if (ObjectUtils.isObject(step.scaleX)) {
+    if (!isNumeric(step.scaleX)) {
       // scaleX is an expression, evaluate it from picture
       scaleX = picture.evaluateExpression(step.scaleX, step.iteration);
+      scaleX = scaleX === undefined ? 1 : scaleX;
     } else {
       scaleX = step.scaleX !== undefined ? step.scaleX : 1;
     }
-    if (ObjectUtils.isObject(step.scaleY)) {
+    if (!isNumeric(step.scaleY)) {
       // scaleX is an expression, evaluate it from picture
       scaleY = picture.evaluateExpression(step.scaleY, step.iteration);
+      scaleY = scaleY === undefined ? 1 : scaleY;
     } else {
       scaleY = step.scaleY !== undefined ? step.scaleY : 1;
     }
@@ -236,9 +239,10 @@ export function getScalingStepSlots(info, step) {
       value: "by"
     });
     if (step.scaleX !== undefined) {
-      if (ObjectUtils.isObject(step.scaleX)) {
+      if (!isNumeric(step.scaleX)) {
         slots.push({
           type: "expression",
+          attribute: "scaleX",
           value: step.scaleX
         });
       } else {
@@ -260,9 +264,10 @@ export function getScalingStepSlots(info, step) {
           value: ","
         });
       }
-      if (ObjectUtils.isObject(step.scaleY)) {
+      if (!isNumeric(step.scaleY)) {
         slots.push({
           type: "expression",
+          attribute: "scaleY",
           value: step.scaleY
         });
       } else {

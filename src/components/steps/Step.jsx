@@ -1,6 +1,7 @@
 import AdjustmentControl from "components/AdjustmentControl";
 import Parameter from "components/parameters/Parameter";
 import { getPointDescription } from "utils/PointUtils";
+import RichExpressionEditor from "components/RichExpressionEditor";
 
 function getDescription(pointObject, props) {
   if (!pointObject) {
@@ -41,29 +42,23 @@ function getExpressionSlot(slot, i, props) {
 function processSlot(id, slot, i, props) {
   if (slot.type === "text") {
     return (<span className="slot" key={i}>{slot.value}</span>);
-  } else if (slot.type === "number") {
-    if (slot.editable) {
-      return (<AdjustmentControl 
-        key={i} 
+  } else if (slot.type === "number" || slot.type === "expression") {
+    if (slot.type === "expression" || slot.editable) {
+      // If it is a pure number render AdjustmentControl     
+      return <RichExpressionEditor
+        key={i}
+        expressionResolver={props.slotExpressionResolver}
         min={slot.min}
         max={slot.max}
-        sensitivity={0.2}
-        value={Number(slot.value)}
-        onDrop={(data) => {
+        expressions={Array.isArray(slot.value) ? slot.value : [ slot.value ]}
+        onUpdate={(expressions) => {
           let step = props.step;
-          step[slot.attribute] = data;
+          step[slot.attribute] = expressions;
           props.onUpdateStep(step);
         }}
-        onChange={(value) => {
-          let step = props.step;
-          step[slot.attribute] = value;
-          props.onUpdateStep(step);
-        }}/>);
-    } else {
-      return (<span key={i} className="slot" key={i}>{slot.value}</span>);
+      />;
     }
-  } else if (slot.type === "expression") {
-    return getExpressionSlot(slot, i, props);
+    return (<span key={i} className="editable-string-input">{slot.value}</span>);
   } else if (slot.type === "point") {
     return (<span className="slot" key={i}>{getDescription(slot.value, props)}</span>);
   } else if (slot.type === "name") {
