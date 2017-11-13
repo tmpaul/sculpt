@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "595010262249345c0c3e"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d7b162b0e662408a6c84"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -2023,7 +2023,7 @@
 /* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
-	eval("\"use strict\";\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _react = __webpack_require__(2);\n\nvar _react2 = _interopRequireDefault(_react);\n\nvar _reactRouter = __webpack_require__(185);\n\nvar _EditorPage = __webpack_require__(241);\n\nvar _EditorPage2 = _interopRequireDefault(_EditorPage);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\n// import ExternalMatrixDiagram from \"components/pages/ExternalMatrixDiagram\";\n\nvar _default = _react2.default.createElement(\n  _reactRouter.Router,\n  { history: _reactRouter.browserHistory },\n  _react2.default.createElement(_reactRouter.Route, { path: \"/\", component: _EditorPage2.default })\n);\n\nexports.default = _default;\n;\n\nvar _temp = function () {\n  if (typeof __REACT_HOT_LOADER__ === 'undefined') {\n    return;\n  }\n\n  __REACT_HOT_LOADER__.register(_default, \"default\", \"/Users/tmpaul/Projects/self/sculpt/src/app/AppRoutes.jsx\");\n}();\n\n;\n\n//////////////////\n// WEBPACK FOOTER\n// ./src/app/AppRoutes.jsx\n// module id = 240\n// module chunks = 0\n//# sourceURL=webpack:///./src/app/AppRoutes.jsx?");
+	eval("\"use strict\";\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n\nvar _react = __webpack_require__(2);\n\nvar _react2 = _interopRequireDefault(_react);\n\nvar _reactRouter = __webpack_require__(185);\n\nvar _EditorPage = __webpack_require__(241);\n\nvar _EditorPage2 = _interopRequireDefault(_EditorPage);\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }\n\n// import ExternalMatrixDiagram from \"components/pages/ExternalMatrixDiagram\";\n\nvar _default = _react2.default.createElement(\n  _reactRouter.Router,\n  { history: _reactRouter.browserHistory },\n  _react2.default.createElement(_reactRouter.Route, { path: \"/\", component: _EditorPage2.default }),\n  _react2.default.createElement(_reactRouter.Route, { path: \"*\", component: _EditorPage2.default })\n);\n\nexports.default = _default;\n;\n\nvar _temp = function () {\n  if (typeof __REACT_HOT_LOADER__ === 'undefined') {\n    return;\n  }\n\n  __REACT_HOT_LOADER__.register(_default, \"default\", \"/Users/tmpaul/Projects/self/sculpt/src/app/AppRoutes.jsx\");\n}();\n\n;\n\n//////////////////\n// WEBPACK FOOTER\n// ./src/app/AppRoutes.jsx\n// module id = 240\n// module chunks = 0\n//# sourceURL=webpack:///./src/app/AppRoutes.jsx?");
 
 /***/ },
 /* 241 */
