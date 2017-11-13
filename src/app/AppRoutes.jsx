@@ -5,6 +5,6 @@ import EditorPage from "pages/EditorPage";
 
 export default (
   <Router history={browserHistory}>
-    <Route path="/editor" component={EditorPage}/>
+    <Route path="/" component={EditorPage}/>
   </Router>
 );

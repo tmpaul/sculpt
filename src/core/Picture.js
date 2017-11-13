@@ -627,6 +627,7 @@ export default class Picture {
    * Insert a child of the given target type
    * @param  {Object} targetType Constructor of the given target type
    * @param  {String} name   The name of the child component to insert (optional)
+   * @param {Object} initialProps The initial set of props to seed with
    * @return {String}            The componentId of the inserted child
    */
   insertChild(targetType, name, initialProps) {
@@ -662,7 +663,9 @@ export default class Picture {
    * Given a set of steps loop over them
    * @param  {Object} loopStep The step which contains substeps to run
    * @param {Number}  iteration The number of times the substeps must be executed
-   * @param  {String} The id of parent loop index if any 
+   * @param  {String} parentLoopId The id of parent loop index if any 
+   * @param {Number} endIndex The index to terminate evaluation
+   * @returns {Array} Array of steps as a result of evaluation
    */
   runStepLoop(loopStep, iteration, parentLoopId, endIndex = Infinity) {
     if (iteration < 1) {

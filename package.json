@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.jsx src",
     "prebuild": "rm -rf dist",
-    "build": "npm run prebuild && npm run lint && webpack --config webpack-prod.config.js --progress --colors --profile",
+    "build-docs": "npm run prebuild && npm run lint && webpack --config webpack-prod.config.js --progress --colors --profile",
     "start": "node server.js"
   },
   "devDependencies": {

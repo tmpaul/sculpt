@@ -13,7 +13,7 @@ export function processFile(fileContent, fileName) {
     let csvHeader = lines.shift();
     let delimiter = identifyDelimiter(csvHeader);
     if (delimiter) {
-      rowVariables = csvHeader.split(delimiter).map((r) => r.trim())
+      rowVariables = csvHeader.split(delimiter).map((r) => r.trim());
       lines.forEach((line) => {
         if (line && line.length) {
           data.push(line.split(delimiter).map((s) => Number(s.trim())));
@@ -40,11 +40,11 @@ function transpose(data) {
 
 function identifyDelimiter(csvHeader) {
   // Given csvHeader, identify delimiter
-  let delimiters = [',',
-    '\t',
-    ';',
-    '|',
-    ':'
+  let delimiters = [ ",",
+    "\t",
+    ";",
+    "|",
+    ":"
   ];
   for (let i = 0; i < delimiters.length; i++) {
     let delimiter = delimiters[i];

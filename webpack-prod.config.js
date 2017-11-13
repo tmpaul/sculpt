@@ -5,8 +5,6 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
   devtool: "eval",
   entry: [
-    "webpack-dev-server/client?http://localhost:3010",
-    "webpack/hot/only-dev-server",
     path.join(__dirname, "src/app/App.jsx")
   ],
   resolve: {

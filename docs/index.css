@@ -10,9 +10,6 @@ body {
 
 .wrapper {
   min-height: 100%;
-  margin-top: 20px;
-  padding-top: 10px;
-
   /* Equal to height of footer */
   /* But also accounting for potential margin-bottom of last child */
   margin-bottom: -20px;
@@ -20,6 +17,11 @@ body {
 .footer,
 .push {
   height: 20px;
+}
+
+.nav {
+  position: fixed !important;
+  top: 0px;
 }
 
 .footer {
@@ -31,41 +33,16 @@ body {
   line-height: 1.5em;
 }
 
-svg {
-  display: block;
-  background: transparent;
-  height: 150px;
-  width: 200px;
-}
-
-svg .marker {
-  stroke-width: 3px;
-  stroke: #212121;
-  fill: #008dff;
-}
-
-svg .path {
-  stroke: #115fbf;
-  fill-opacity: 0.8;
-  stroke-width: 1px !important;
-  /*stroke-dasharray: 500;
-  stroke-dashoffset: 500;
-  stroke-linejoin: bevel;*/
-}
-
 .logo-container {
   position: absolute;
-  top: 40px;
+  top: 20px;
 }
 
 .subtitle {
   text-align: center;
   font-size: 14px;
   color: #1cbcf1;
-}
-
-svg .path:hover {
-  fill-opacity: 1;
+  margin: 5px 0px;
 }
 
 @keyframes swing {
@@ -108,9 +85,20 @@ svg .path:hover {
   text-transform: lowercase;
 }
 
+.step {
+  margin: 0px 10px !important;
+}
+
 .logo-text > .character:hover {
   transition: all 0.3s ease-in;
   transform: scale(1.25);
+}
+
+#sculpt-root {
+  height: auto !important;
+}
+.content {
+  padding: 0px 25px !important;
 }
 
 .character:before,

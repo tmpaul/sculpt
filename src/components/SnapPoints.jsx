@@ -38,13 +38,6 @@ export default class SnapPoints extends BaseComponent {
           height={40}
           width={40}
         />)}
-        {/*this.state.points.map((point, i) => {
-          return (<ControlPoint key={i}
-            x={point.pointX}
-            y={point.pointY}
-            mode="snap"
-          />);
-        })*/}
       </g>
     );
   }
