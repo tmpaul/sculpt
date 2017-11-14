@@ -7,6 +7,8 @@ body {
   font-family: courier;
   color: #525252;
   background: #fff;  /* fallback for old browsers */
+  background-size: 40px;
+  background-image: radial-gradient(circle, #bbbbbb 1px, rgba(0, 0, 0, 0) 1px);
 }
 
 .wrapper {
@@ -22,6 +24,8 @@ body {
 
 .svg-canvas {
   box-shadow: 0px 2px 4px rgba(0,0,0,0.3);
+  background: #fff;
+  opacity: 0.9;
 }
 
 .nav {
@@ -30,10 +34,36 @@ body {
   background: #fff !important;
   border: none !important;
   box-shadow: 0px 1px 1px 1px rgba(10, 10, 10, 0.2);
+  animation: 0.3s come-in-left ease-in;
+}
+
+@keyframes come-in-left {
+  0% {
+    left: -400px;
+    opacity: 0.5;
+  }
+  100% {
+    left: 0px;
+    opacity: 1;
+  }
+}
+
+@keyframes come-in-right {
+  from {
+    right: -400px;
+    opacity: 0.5;
+  }
+  to {
+    right: 0px;
+    opacity: 1;
+  }
 }
 
 .toolbar {
   border: none !important;
+  animation: 0.3s come-in-right ease-in;
+  width: 16% !important;
+  box-shadow: 0px 1px 1px 1px rgba(10, 10, 10, 0.2);
 }
 
 .footer {
@@ -56,6 +86,8 @@ body {
   color: #525252;
   margin: 5px 0px;
   font-family: courier;
+  padding: 10px;
+  border: 1px dotted #9a9a9a;
 }
 
 @keyframes swing {
@@ -82,6 +114,13 @@ body {
 .logo-text {
   color: #fff;
   text-align: center;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+}
+
+.toolbar-right {
+  
 }
 
 .logo-text > .character {
@@ -90,7 +129,6 @@ body {
   font-weight: bold;
   font-size: 50px;
   color: #525252;
-  transition: all 0.5s ease-in;
   background: transparent;
   margin: 0px 5px;
   padding: 0px 10px;
@@ -109,6 +147,7 @@ body {
 
 #sculpt-root {
   height: auto !important;
+  padding-top: 100px;
 }
 .content {
   padding: 0px 25px !important;
@@ -120,7 +159,7 @@ body {
   position: absolute;
   left: 10px;
   color: transparent;
-  transition: all 0.5s ease-in;
+  /*transition: all 0.5s ease-in;*/
 }
       
 .character:before {
