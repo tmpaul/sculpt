@@ -31,7 +31,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       inject: false,
-      template: path.join(__dirname, "/docs/index.html")
+      template: path.join(__dirname, "/public/index.html")
     }),
     new webpack.HotModuleReplacementPlugin()
   ],
