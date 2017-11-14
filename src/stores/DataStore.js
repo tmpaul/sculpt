@@ -1,18 +1,26 @@
 import { EventEmitter } from "events";
 
 function average(args) {
+  if (!args.length) {
+    return 0;
+  }
+  return sum(args) / args.length;
+}
+
+function sum(args) {
   let sum = 0;
   args.forEach((arg) => {
     sum += arg;
   });
-  return sum / args.length;
+  return sum; 
 }
 
 const statNames = {
   "min": "Minimum of ",
   "max": "Maximum of ",
   "# of items": "Number of ",
-  "average": "Average of "
+  "average": "Average of ",
+  "sum": "Sum of"
 };
 
 export default class DataStore extends EventEmitter {
@@ -65,7 +73,7 @@ export default class DataStore extends EventEmitter {
     let rowVar = this.rowVars[index];
     return {
       name: rowVar,
-      stats: [ "min", "max", "average", "# of items" ].map((stat) => {
+      stats: [ "min", "max", "average", "# of items", "sum" ].map((stat) => {
         return {
           name: statNames[stat] + rowVar,
           type: stat,
@@ -86,6 +94,8 @@ export default class DataStore extends EventEmitter {
         return average(dataRow);
       case "# of items":
         return dataRow.length;
+      case "sum":
+        return sum(dataRow);
     }
   }
 
