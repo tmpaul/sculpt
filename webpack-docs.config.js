@@ -1,9 +1,9 @@
 var path = require("path");
 var webpack = require("webpack");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
+var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-  devtool: "eval",
   entry: [
     path.join(__dirname, "src/app/App.jsx")
   ],
@@ -31,13 +31,20 @@ module.exports = {
       inject: false,
       template: path.join(__dirname, "/docs/index.html")
     }),
-    new webpack.HotModuleReplacementPlugin()
+    new UglifyJSPlugin({
+      sourceMap: false,
+      uglifyOptions: {
+        output: {
+          comments: false
+        }
+      }
+    })
   ],
   module: {
     loaders: [
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader?modules=true&localIdentName=[name]__[local]__[hash:base64:5]"
+        loader: "style-loader!css-loader"
       },
       { test: /\.(png|jpg|jpeg|gif)?$/, loader: "file" },
       { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=image/svg+xml" },

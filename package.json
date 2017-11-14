@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.jsx src",
     "prebuild": "rm -rf dist",
-    "build-docs": "npm run prebuild && npm run lint && webpack --config webpack-prod.config.js --progress --colors --profile",
+    "build-docs": "npm run prebuild && npm run lint && webpack --config webpack-docs.config.js --progress --colors --profile",
     "start": "node server.js"
   },
   "devDependencies": {
@@ -47,7 +47,9 @@
     "html-webpack-plugin": "2.24.1",
     "jest": "^20.0.4",
     "json-loader": "0.5.4",
+    "less": "2.7.1",
     "less-loader": "2.2.3",
+    "lesshat": "^4.0.1",
     "mocha": "3.2.0",
     "nodemon": "1.11.0",
     "raw-loader": "^0.5.1",
@@ -56,12 +58,11 @@
     "regenerator": "0.9.5",
     "sinon": "1.17.6",
     "style-loader": "0.12.3",
+    "uglifyjs-webpack-plugin": "^1.0.1",
     "url-loader": "0.5.7",
     "webpack": "1.14.0",
     "webpack-dev-server": "1.16.2",
-    "webpack-fail-plugin": "^1.0.5",
-    "less": "2.7.1",
-    "lesshat": "^4.0.1"
+    "webpack-fail-plugin": "^1.0.5"
   },
   "dependencies": {
     "clone": "^2.1.1",

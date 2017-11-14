@@ -525,7 +525,7 @@ export default class Picture {
         let info = this.propStore.getInfo(currentStep.componentId);
         let point = this.snappingStore.getClosestSnappingPoint(event.payload.x,
           event.payload.y, function(pointId) {
-            return getPointNameFromPointId(pointId) !== currentStep.componentId;
+            return getComponentIdFromPointId(pointId) !== currentStep.componentId;
           });
         if (point && point.pointId) {
           event.payload.pointId = point.pointId;
