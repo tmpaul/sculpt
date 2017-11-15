@@ -36,18 +36,6 @@ export default class EditorPage extends BasePage {
         height: 420
       }
     });
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
-  }
-
-  componentWillMount() {
-    document.addEventListener("keydown", this.handleKeyDown);
-    document.addEventListener("keyup", this.handleKeyUp);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeyDown);
-    document.addEventListener("keyup", this.handleKeyUp);
   }
 
   componentDidMount() {
@@ -130,7 +118,7 @@ export default class EditorPage extends BasePage {
               </filter>
               {this.state.picture.render()}
             </svg>
-            <Toolbar dispatchEvent={this.handleToolbarEvent}/>
+            <Toolbar dispatchEvent={this.handleToolbarEvent} handleToolbarEvent={this.handleToolbarEvent}/>
           </div>    
         </div>
       </div>
@@ -145,61 +133,14 @@ export default class EditorPage extends BasePage {
     });
   }
 
-  handleKeyDown(event) {
-    if (event.target.tagName === "INPUT") {
-      return;
-    }
-    let keyCode = event.keyCode;
-    if (keyCode === 16) {
-      // SHIFT key
-      this.state.picture.stepStore.shiftKey = true;
-    }
-    // Key : r
-    if (keyCode === 82) {
-      this.handleToolbarEvent({
-        type: "INSERT_COMPONENT",
-        payload: EditableRectangle
-      });
-    }
-    // Key: m
-    if (keyCode === 77) {
-      this.handleToolbarEvent({
-        type: "MOVE"
-      });
-    }
-    // Key: s
-    if (keyCode === 83) {
-      this.handleToolbarEvent({
-        type: "SCALE"
-      });
-    }
-    // Key: g
-    if (keyCode === 71) {
-      this.handleToolbarEvent({
-        type: "GUIDE"
-      });
-    }
-    // Key: l
-    // if (keyCode === 77) {
-    //   this.handleToolbarEvent({
-    //     type: "LOOP"
-    //   });
-    // }
-  }
-
-  handleKeyUp(event) {
-    let keyCode = event.keyCode;
-    if (keyCode === 16) {
-      // SHIFT key
-      this.state.picture.stepStore.shiftKey = false;
-    }
-  }
-
   handleEvent(event) {
     EventStore.notify(event);
   }
 
   handleToolbarEvent(event) {
+    if (event.type === "SHIFT_KEY") {
+      return this.state.stepStore.shiftKey = event.value;
+    }
     this.state.picture.notify(event);
     this.forceUpdate();
   }

@@ -224,6 +224,14 @@ pre.output {
     cursor: pointer;
   }
 
+  .keyboard-shortcut {
+    margin-left: 10px;
+    text-transform: lowercase;
+    font-weight: bold;
+    color: #696969;
+    font-size: 12px;
+  }
+
   h4 {
     margin: 10px 0px;
     font-size: 14px;
@@ -244,6 +252,11 @@ pre.output {
     &.active {
       background: #5f5f5f;
       color: #fff;
+      border-radius: 0px;
+    }
+
+    &.active .keyboard-shortcut {
+      color: #ffffff;
     }
   }
 }
@@ -297,6 +310,7 @@ pre.output {
   border: 1px solid #dedede;
   padding: 20px;
   background: #f9f9f9;
+  z-index: 4;
   box-shadow: 0px 2px 3px rgba(0,0,0,0.4);
 
   > ul {
