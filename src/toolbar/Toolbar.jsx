@@ -124,14 +124,14 @@ export default class Toolbar extends BaseComponent {
       });
     }
     // Key: g
-    if (keyCode === 85) {
+    if (keyCode === 71) {
       this.props.handleToolbarEvent({
         type: "GUIDE"
       });
     }
 
     // Key: u
-    if (keyCode === 71) {
+    if (keyCode === 85) {
       this.props.handleToolbarEvent({
         type: "ROTATE"
       });
