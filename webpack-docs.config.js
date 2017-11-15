@@ -12,8 +12,8 @@ module.exports = {
     extensions: [ "", ".js", ".jsx" ],
     root: [ path.resolve(__dirname, "src") ],
     alias: {
-      "react": path.resolve(__dirname, "node_modules/react"),
-      "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+      "react": path.resolve(__dirname, "node_modules/react/dist/react.min.js"),
+      "react-dom": path.resolve(__dirname, "node_modules/react-dom/dist/react-dom.min.js"),
       "react-router": path.resolve(__dirname, "node_modules/react-router")
     },
     modulesDirectories: [
