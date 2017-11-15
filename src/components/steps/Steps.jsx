@@ -42,7 +42,7 @@ export default class Steps extends BaseComponent {
               );
             }
             return (
-              <li className={StepStore.isSelected(index) ? "selected-step" : ""} style={{ padding: 0 }} key={index}>
+              <li style={{ padding: 0 }} key={index}>
                 <CurrentStepComponent 
                   step={step}
                   selected={StepStore.isSelected(index)}
