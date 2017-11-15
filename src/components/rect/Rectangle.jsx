@@ -20,9 +20,11 @@ export default class EditableRectangle extends BaseComponent {
   // *********************************************************
   // Static properties
   // *********************************************************
-  static rectPropKeys = [ "x", "y", "width", "height", "fill", "stroke", "fillOpacity", "strokeOpacity", "strokeWidth" ];
+  static rectPropKeys = [ "x", "y", "width", "height", "fill", "stroke", "strokeWidth" ];
 
   static displayName = "Rectangle";
+
+  static editablePropKeys = [ "x", "y", "width", "height", "fill", "stroke", "strokeWidth" ];
 
   static getPropertyDefinition(name) {
     switch (name) {

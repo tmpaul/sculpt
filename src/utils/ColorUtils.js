@@ -30,6 +30,29 @@ function testRegex(regex, string) {
   return regex.test(string);
 }
 
+export function getRGBAComponents(rgbString) {
+  // Simple hack to clone regex. Otherwise it holds state across fn calls
+  let rgbRegex = eval(COLOR_REGEX.rgb.global.toString());
+  let rgbaRegex = eval(COLOR_REGEX.rgba.global.toString());
+  if (COLOR_REGEX.rgb.strict.test(rgbString)) {
+    let match = rgbRegex.exec(rgbString);
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+      a: 1
+    };
+  } else if (COLOR_REGEX.rgba.strict.test(rgbString)) {
+    let match = rgbaRegex.exec(rgbString);
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+      a: Number(match[4])
+    };
+  }
+}
+
 export function isColor(string) {
   if (!string) {
     return false;

@@ -20,7 +20,7 @@ const statNames = {
   "max": "Maximum of ",
   "# of items": "Number of ",
   "average": "Average of ",
-  "sum": "Sum of"
+  "sum": "Sum of "
 };
 
 export default class DataStore extends EventEmitter {

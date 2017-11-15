@@ -146,6 +146,29 @@ export default class StepStore extends EventEmitter {
     });
   }
 
+  seedStepProps(componentId, props) {
+    this.steps.forEach((step, i) => {
+      if (step.componentId === componentId && step.type === "DRAW") {
+        // There are two options: either its part of a loop step,
+        // or it is a plain step.
+        if (step.loopIndex !== undefined) {
+          // Then update all steps that are looped across iterations
+          let loopStep = this.getLoopStep(step.loopIndex);
+          // Find out all of steps corresponding to this step.
+          // 01 2 3 4 5 6 7
+          let subStepIndex = (i - loopStep.startIndex) % (loopStep.steps.length);
+          loopStep.steps[subStepIndex].initialProps = ObjectUtils.extend({}, loopStep.steps[subStepIndex].initialProps, props);
+          for (let iter = 0; iter < loopStep.iteration; iter ++) {
+            let k = loopStep.startIndex + subStepIndex + iter * (loopStep.steps.length);
+            this.steps[k].initialProps = ObjectUtils.extend({}, this.steps[k].initialProps, props);
+          }
+        } else {
+          step.initialProps = ObjectUtils.extend({}, step.initialProps, props);
+        }
+      }
+    });
+  }
+
   updateCurrentStep(step) {
     if (step === AbortStep) {
       // Remove the current step

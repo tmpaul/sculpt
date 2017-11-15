@@ -26,7 +26,9 @@ export default class PropertyPanel extends BaseComponent {
         top: this.state.y,
         display: this.state.componentProps ? "block" : "none"
       }}>
-        <i className="fa fa-close" onClick={this.close}/>
+        <span onClick={this.close}>
+          Close
+        </span>
         {this.state.componentProps && (
           <ul>
           {Object.keys(this.state.componentProps).map((propKey, index) => {
@@ -50,9 +52,11 @@ export default class PropertyPanel extends BaseComponent {
   }
 
   onPropChange(property, value) {
+    this.state.componentProps[property] = value;
     this.state.changeCallback({
       [property]: value
     });
+    this.forceUpdate();
   }
 
   close() {

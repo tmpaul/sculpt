@@ -2,6 +2,7 @@ import { PropTypes } from "react";
 import { SketchPicker } from "react-color";
 import AdjustmentControl from "components/AdjustmentControl";
 import BaseComponent from "core/BaseComponent";
+import { COLOR_REGEX, getRGBAComponents } from "utils/ColorUtils";
 
 export default class EditableProperty extends BaseComponent {
   // *********************************************************
@@ -37,7 +38,9 @@ export default class EditableProperty extends BaseComponent {
             </span>
           ) :
           this.props.value}
-        <i className="fa fa-edit" style={{ float: "right" }} onClick={() => this.setState({ editing: !this.state.editing })}/>
+        <span style={{ float: "right" }} onClick={() => this.setState({ editing: !this.state.editing })}>
+          {this.state.editing ? "Close" : "Edit"}
+        </span>
       </span>
     );
   }
@@ -50,10 +53,26 @@ export default class EditableProperty extends BaseComponent {
   getAppropriateComponent(props) {
     switch (props.type) {
       case "color":
-        return (<SketchPicker color={props.value} onChangeComplete={(v) => props.onChange(v.hex)}/>);
+        return (<SketchPicker 
+          color={this.formatColor(props.value)} 
+          onChangeComplete={({ rgb }) => props.onChange(`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`)}/>);
       case "number":
         // Expression with slider
         return (<AdjustmentControl value={props.value} onChange={(v) => props.onChange(Number(v))}/>);
     };
+  }
+
+  /**
+   * Format and normalize color into rgba format or hex string
+   * @param  {String} color The color to normalize
+   * @return {String|Object}       Color object with r,g,b,a values or hex string
+   */
+  formatColor(color) {
+    if (COLOR_REGEX.hex.strict.test(color)) {
+      return color;
+    } else if (COLOR_REGEX.rgb.strict.test(color) || COLOR_REGEX.rgba.strict.test(color)) {
+      return getRGBAComponents(color);
+    }
+    return color;
   }
 };

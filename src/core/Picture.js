@@ -87,18 +87,35 @@ export default class Picture {
       let id = event.source;
       // Show a context menu for the relevant component at event.x, event.y
       let info = this.propStore.getInfo(id);
-      // Call propertyPanel (which is a ref passed from EditorPage)
-      PropetyPanelStore.show(id, info.props, info.type, {
-        x: event.payload.x,
-        y: event.payload.y
-      }, (id, newProps) => {
-        // Insert them as initialProps on the DRAw step
-        let step = this.stepStore.getComponentDrawStep(id);
-        step.initialProps = ObjectUtils.extend({}, step.initialProps || {}, newProps);
-        // Re-run all steps until
-        this.evaluate(this.stepStore.steps.length - 1);
-        this.emitChange();
-      });
+      if (id && info.type) {
+        // Call propertyPanel (which is a ref passed from EditorPage)
+        // Get root info
+        // let rootProps = this.propStore.getProps("0");
+        let { x, y } = event.payload;
+        // if (x > rootProps.width / 2) {
+        //   x = x - rootProps.width / 2;
+        // }
+        // if (y > rootProps.height / 2) {
+        //   y = y - rootProps.height / 2;
+        // }
+        // Only show the props that user wants to change via prop panel
+        let editableProps = {};
+        info.type.editablePropKeys.forEach((propKey) => {
+          editableProps[propKey] = info.props[propKey];
+        });
+        PropetyPanelStore.show(id, editableProps, info.type, {
+          x, y
+        }, (id, newProps) => {
+          // Insert them as initialProps on the DRAw step
+          let step = this.stepStore.getComponentDrawStep(id);
+          // Set onto initialProps
+          // step.initialProps = ObjectUtils.extend({}, step.initialProps || {}, newProps);
+          this.stepStore.seedStepProps(id, newProps);
+          // Re-run all steps until
+          this.evaluate(this.stepStore.getCurrentIndex());
+          this.emitChange();
+        });
+      }
       return;
     }
     // Get current operation
@@ -700,7 +717,8 @@ export default class Picture {
         // Increment endIndex
         loopEndIndex++;
         if (loopEndIndex > endIndex) {
-          finalSteps.push(step);
+          // Use original step
+          finalSteps.push(this.stepStore.steps[loopEndIndex]);
           continue;
         }
         step.loopIndex = loopStep.loopIndex;
