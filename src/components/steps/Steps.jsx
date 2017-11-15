@@ -26,7 +26,7 @@ export default class Steps extends BaseComponent {
     return (
       <div>
       <h4>Steps</h4>
-        <ol style={{ padding: 0 }}>
+        <ol style={{ padding: "0px 10px" }}>
           {steps.map((step, index) => {
             if (step.type === "LOOP") {
               // Render a LoopingStep component
@@ -42,7 +42,7 @@ export default class Steps extends BaseComponent {
               );
             }
             return (
-              <li style={{ padding: 0 }} key={index}>
+              <li className={StepStore.isSelected(index) ? "selected-step" : ""} style={{ padding: 0 }} key={index}>
                 <CurrentStepComponent 
                   step={step}
                   selected={StepStore.isSelected(index)}

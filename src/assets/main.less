@@ -7,17 +7,23 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: 'Open Sans', Arial, sans-serif;
+  font-family: courier;
 }
 
 *,
 *:before,
 *:after {
   box-sizing: border-box;
+  font-family: courier;
 }
 
 #sculpt-root {
   height: 100%;
+}
+
+li.selected-step {
+  background: rgba(60, 167, 255, 0.2);
+  border-left-color: #1594ff;
 }
 
 
@@ -48,8 +54,7 @@ html, body {
   }
 
   &.selected {
-    background: rgba(60, 167, 255, 0.2);
-    border-left-color: #1594ff;
+    
   }
 
   &.error {
@@ -246,6 +251,7 @@ pre.output {
     padding: 5px 25px;
     display: block;
     margin: 0 auto;
+    font-size: 14px;
     text-transform: uppercase;
 
 
