@@ -139,7 +139,7 @@ export default class EditorPage extends BasePage {
 
   handleToolbarEvent(event) {
     if (event.type === "SHIFT_KEY") {
-      return this.state.stepStore.shiftKey = event.value;
+      return this.state.picture.stepStore.shiftKey = event.value;
     }
     this.state.picture.notify(event);
     this.forceUpdate();

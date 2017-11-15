@@ -138,7 +138,7 @@ export default class Toolbar extends BaseComponent {
     }
 
     // Key: l
-    if (keyCode === 77) {
+    if (keyCode === 76) {
       this.props.handleToolbarEvent({
         type: "LOOP"
       });
