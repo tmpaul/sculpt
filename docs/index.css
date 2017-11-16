@@ -7,8 +7,6 @@ body {
   font-family: courier;
   color: #525252;
   background: #fff;  /* fallback for old browsers */
-  background-size: 40px;
-  background-image: radial-gradient(circle, #bbbbbb 1px, rgba(0, 0, 0, 0) 1px);
 }
 
 .wrapper {

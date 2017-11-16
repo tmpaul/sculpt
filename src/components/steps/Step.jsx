@@ -86,7 +86,7 @@ export default function Step(props) {
   // Run over stepContents, if any slot is editable, mark it so that
   // we can track what is being edited
   return (
-    <div className={"step current-step " + (props.single ? "single-line " : " ") + (props.selected ? "selected-step" : "")}
+    <div className={"step current-step " + (props.single ? "single-line " : " ") + (props.selected ? "selected" : "")}
       onClick={props.single ? props.onClick : Step.defaultProps.onClick}
     >
       {slots}
