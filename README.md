@@ -1,6 +1,6 @@
 # [Sculpt](https://tmpaul06.github.io/sculpt/)
 
-<img src="./logo.svg" width="125" height="125"/>
+<img src="./logo.svg" width="250" height="250"/>
 
 A direct manipulation drawing tool implemented in javascript inspired by
 the [this video](https://www.youtube.com/watch?v=ef2jpjTEB5U) from Bret Victor.
