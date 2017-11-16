@@ -956,14 +956,16 @@ export default class Picture {
   }
 
   evaluateExpression(expression, loopIndex) {
-    if (expression === undefined) {
+    if (expression === undefined || expression === null) {
       return undefined;
     }
     if (Array.isArray(expression)) {
       try {
         // Run over each component and fetch value
-        let finalExp = expression.map((e) => this.evaluateExpression(e, loopIndex)).join("");
-        return eval(finalExp);
+        let finalExp = expression.map((e) => {
+          return this.evaluateExpression(e, loopIndex);
+        });
+        return eval(finalExp.join(""));
       } catch (e) {
         return;
       }
@@ -972,12 +974,12 @@ export default class Picture {
       case "parameter":
         let parameter = this.parametersStore.getParameterByIndex(expression.value);
         // Read in the value and return
-        return parameter.value;
+        return this.evaluateExpression(parameter.value, loopIndex);
       case "rowVariable":
         let index = loopIndex === undefined ? this.dataStore.getActiveIndex() : loopIndex;
-        return this.dataStore.data[expression.index][index];
+        return this.evaluateExpression(this.dataStore.data[expression.index][index], loopIndex);
       case "rowVariableStatistic":
-        return this.dataStore.getRowVariableStatistic(expression.index, expression.statVariable);
+        return this.evaluateExpression(this.dataStore.getRowVariableStatistic(expression.index, expression.statVariable));
       default:
         return expression;
     };
