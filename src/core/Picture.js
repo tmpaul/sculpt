@@ -716,11 +716,11 @@ export default class Picture {
         step.iteration = iter;
         // Increment endIndex
         loopEndIndex++;
-        if (loopEndIndex > endIndex) {
-          // Use original step
-          finalSteps.push(this.stepStore.steps[loopEndIndex]);
-          continue;
-        }
+        // if (loopEndIndex > endIndex) {
+        //   // We need evaluate but not change propStore.
+        //   finalSteps.push(this.stepStore.steps[loopEndIndex - (iter)]);
+        //   continue;
+        // }
         step.loopIndex = loopStep.loopIndex;
 
         // Set the loopId used for grouping, based on parentLoopIndex

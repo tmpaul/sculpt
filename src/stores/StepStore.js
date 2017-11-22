@@ -223,6 +223,7 @@ export default class StepStore extends EventEmitter {
         // Run and evaluate till `next` index, then render onto screen
         let steps = this.picture.runStepLoop(loopStep, loopStep.iteration, undefined, next);
         this.insertEvaluatedLoopSteps(loopStep, steps, next);
+        this.picture.evaluate(next);
         this._selected = [ next ];
         this._nextInsertIndex = null;
       } else {
