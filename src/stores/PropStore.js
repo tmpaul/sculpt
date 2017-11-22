@@ -19,7 +19,10 @@ export default class PropStore {
         let value = this._cache[key];
         this._cache[key] = {
           type: value.type,
-          name: value.name
+          name: value.name,
+          props: {
+            transforms: []
+          }
         };
       }
     });
