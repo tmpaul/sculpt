@@ -22,3 +22,8 @@ tmp
 *.log
 
 docs/generated-documentation/
+
+
+# Nyc
+.nyc_output
+coverage/

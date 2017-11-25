@@ -30,6 +30,8 @@ export default class EditorPage extends BasePage {
         y: 0,
         canvasWidth: 700,
         canvasHeight: 460,
+        // The painting surface is offset so as to show the control
+        // points at the border. Otherwise they will be cut off.
         translateX: 20,
         translateY: 20,
         width: 660,

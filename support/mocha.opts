@@ -1,0 +1,3 @@
+--colors
+--require support/mocha-setup.js
+src/**/*/tests/**/*.js
