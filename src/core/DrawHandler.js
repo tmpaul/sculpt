@@ -10,7 +10,7 @@ import { CREATE_STEP, UPDATE_STEP,
  * @param  {Function} componentType   The type of component being drawn
  * @return {Array}                    The list of intended mutations
  */
-export default function handleDrawing(step, event = {}, componentType) {
+export default function handleDraw(step, event = {}, componentType) {
   let mutations = [];
   switch (event.type) {
     case "CANVAS_DRAG_START":
