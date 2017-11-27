@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  text-align: center;
 }
 
 body {
@@ -7,6 +8,39 @@ body {
   font-family: courier;
   color: #525252;
   background: #fff;  /* fallback for old browsers */
+}
+
+#logo {
+  width: 300px;
+  display: block;
+  margin: 0 auto;
+}
+
+.content {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.animated-path {
+  transition: 1s all ease-in;
+  stroke: none;
+}
+
+.svg-title {
+  font-size: 120px;
+  /*stroke: #ff8686;*/
+}
+
+#draw {
+  
+}
+
+#path1 {
+  fill: #ff7d7d;
+}
+
+#path2 {
+  fill: rgba(255, 215, 111, 0.5)
 }
 
 .wrapper {
@@ -24,6 +58,10 @@ body {
   box-shadow: 0px 2px 4px rgba(0,0,0,0.3);
   background: #fff;
   opacity: 0.9;
+}
+
+.character-group {
+  transform: translateY(120px)scale(2.5);
 }
 
 .nav {
@@ -80,12 +118,11 @@ body {
 
 .subtitle {
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;
   color: #525252;
   margin: 5px 0px;
   font-family: courier;
   padding: 10px;
-  border: 1px dotted #9a9a9a;
 }
 
 @keyframes swing {
@@ -112,7 +149,6 @@ body {
 .logo-text {
   color: #fff;
   text-align: center;
-  position: fixed;
   top: 0px;
   width: 100%;
 }
@@ -121,7 +157,20 @@ body {
   
 }
 
-.logo-text > .character {
+.primary-button {
+  display: block;
+  margin: 0 auto;
+  /* color: #ffffff; */
+  /* background: #fdbf24; */
+  outline: none;
+  /* border: 1px solid #ffa820; */
+  font-size: 14px;
+  border-radius: 0px;
+  cursor: pointer;
+  border: 1px solid #212121;
+}
+
+.logo-text .character {
   position: relative;
   font-family: courier;
   font-weight: bold;
@@ -131,14 +180,15 @@ body {
   margin: 0px 5px;
   padding: 0px 10px;
   display: inline-block;
-  text-transform: lowercase;
+  text-transform: uppercase;
+  border: 1px solid;
 }
 
 .step {
   margin: 0px 10px !important;
 }
 
-.logo-text > .character:hover {
+.logo-text .character:hover {
   transition: all 0.3s ease-in;
   transform: scale(1.25);
 }
@@ -151,13 +201,12 @@ body {
   padding: 0px 25px !important;
 }
 
-.character:before,
+/*.character:before,
 .character:after {
   content: attr(data-letter);
   position: absolute;
   left: 10px;
   color: transparent;
-  /*transition: all 0.5s ease-in;*/
 }
       
 .character:before {
@@ -170,7 +219,7 @@ body {
   transform-style:preserve-3d;
   transform: skew(0deg, 5deg);
   transform-origin:0 100% ;
-  /* Both shadows are required for browsers that don't support full spread specs and those that do support full spread specs*/
+   Both shadows are required for browsers that don't support full spread specs and those that do support full spread specs
   text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.25);
   text-shadow:0px 3px 5px 1px rgba(0,0,0,0.25);
 }
@@ -193,3 +242,4 @@ body {
   transform-origin:0 100% ;
   z-index: 100;
 }
+*/
