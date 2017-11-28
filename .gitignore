@@ -21,6 +21,8 @@ tmp
 # dev mode logs
 *.log
 
+coverage
+.nyc_output
 docs/generated-documentation/
 
 
