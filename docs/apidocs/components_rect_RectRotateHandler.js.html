@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/rect/RectRotateHandler.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/rect/RectRotateHandler.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { ObjectUtils } from "utils/GenericUtils";
+import { 
+  detectSnapping, 
+  toSourcePoint, 
+  closestSelfControlPoint, 
+  getPointNameFromPointId,
+  getTransformedPoint,
+  reflectPoint,
+  getComponentIdFromPointId } from "utils/PointUtils";
+
+const opposite = {
+  left: "right",
+  right: "left",
+  top: "bottom",
+  bottom: "top"
+};
+
+const distance = (pt1, pt2) => Math.sqrt(Math.pow(pt1.x - pt2.x, 2) + Math.pow(pt1.y - pt2.y, 2));
+
+/**
+ * Handle the start of a rotate operation
+ * @param  {Object} picture                The picture being drawn
+ * @param  {Object} step                   The move step
+ * @param  {String} options.pointId        The id of the point that user clicked on
+ * @return {Object} The updated step
+ */
+export function onRotateStart(picture, step, { pointId }) {
+  // Find the snapping point on the rectangle that closely matches (x, y)
+  step.rotateAngle = 0;
+  step.rotateCenter = null;
+  let info = picture.propStore.getInfo(step.componentId);
+  // Get the corresponding snap point version so that we know its x,y coords in
+  // the transformed space
+  let snapPoint = info.type.getSnappingPoint(info.props, getPointNameFromPointId(pointId));
+  step.source = {
+    pointId,
+    x: snapPoint.x,
+    y: snapPoint.y
+  };
+  // Given a source point, identify the point we are rotating about
+  if (step.source &amp;&amp; step.source.pointId) {
+    // Get the name of the point from the pointId
+    let pointName = getPointNameFromPointId(step.source.pointId);
+    let otherPoint = pointName.split(" ").map((d) => opposite[d] || d).join(" ");
+    let targetPoint = info.type.getSnappingPoint(info.props, otherPoint);
+    step.target = toSourcePoint(step.componentId, targetPoint);
+  }
+  return step;
+}
+
+/**
+ * Handle rotation of a component about a target point
+ * @param  {Object} picture        The picture we are drawing
+ * @param  {Object} step           The rotate step
+ * @param  {Number} options.deltaX The delta x movement of the control point
+ * @param  {Number} options.deltaY The delta y movement of the control point
+ * @return {Object} The updated step
+ */
+export function onRotate(picture, step, { deltaX, deltaY }) {
+  // Move from step's source deltaX units horizontally and deltaY units vertically
+  if (step.target &amp;&amp; step.target.pointId) {
+    // Get the angle of rotation about targetPoint. The targetPoint will not move
+    // as we are rotating!
+    // To figure out angle of rotation we use deltas
+    
+    // Find coordinates of source point (the one we are rotating)
+    let sourcePoint = step.source;
+
+    // Find coordinates of mouse cursor
+    let mousePoint = {
+      x: step.source.x + deltaX,
+      y: step.source.y + deltaY
+    };
+
+    // Find coordinates of target point (the one are rotating about)
+    let targetPoint = step.target;
+
+    // Calculate distances between the points
+    let a = distance(sourcePoint, targetPoint);
+
+    let b = distance(targetPoint, mousePoint);
+
+    let c = distance(sourcePoint, mousePoint);
+
+    // Use law of cosines
+    step.angle = Math.acos((a * a + b * b - c * c) / (2 * a * b));
+
+    // We need to adjust the angle's sign based on position of new
+    // targetPoint relative to old targetPoint.
+    // Get the sign by evaluating the position of mouse pointer about line
+    let sign = (mousePoint.x - targetPoint.x) * (sourcePoint.y - targetPoint.y) -
+      (mousePoint.y - targetPoint.y) * (sourcePoint.x - targetPoint.x);
+
+    if (step.angle > Math.PI / 2 &amp;&amp; sign > 0) {
+      step.angle = 2 * Math.PI - step.angle;
+    }
+    if (step.angle &lt; Math.PI / 2 &amp;&amp; sign > 0) {
+      step.angle = -step.angle;
+    }
+  }
+  return step;
+};
+
+/**
+ * Handle the rotation end event
+ * @param  {Object} picture   The picture we are drawing
+ * @param  {Object} step      The rotate step
+ * @param  {Number} options.x The x coordinate of the mouse pointer relative to canvas
+ * @param  {Number} options.y The y coordinate of the mouse pointer relative to canvas
+ * @return {Object} The updated step
+ */
+export function onRotateEnd(picture, step, { x, y }) {
+  // Find out the matrix of the node being modified. We will use
+  // data-sculpt-id to select the rect. For the actual drawing,
+  // the calculated matrix will be stored on step
+  // let node = document.querySelector(`[data-sculpt-id="${step.componentId}"]`);
+  // step.matrix = node.getCTM();
+  // let txPt = getTransformedPoint(picture, step.matrix, { x, y });
+  // // Detect snapping now
+  // let point = detectSnapping(picture.snappingStore, txPt);
+  // if (point &amp;&amp; point.pointId) {
+  //   step.source = point;
+  // }
+  return step;
+};
+
+export function evaluateRotateStep(picture, info, step) {
+  // Look for a source point id
+  let sourcePoint, targetPoint, angle = step.angle || 0;
+  if (step.target.pointId) {
+    if (step.source &amp;&amp; step.source.pointId) {
+      angle = angle * 180 / Math.PI;
+    }
+    if (angle === undefined) {
+      return;
+    }
+    let targetPointName = getPointNameFromPointId(step.target.pointId);
+    let props = info.props;
+    let rotationPoint = info.type.getSnappingPoint(info.props, targetPointName);
+    let transforms = props.transforms;
+    // Check if the last element
+    transforms[step.transformId] = {
+      type: "rotate",
+      rotation: angle,
+      rotateX: rotationPoint.x,
+      rotateY: rotationPoint.y
+    };
+    return {
+      transforms
+    };
+  }
+}
+
+export function getRotationStepSlots(info, step) {
+  let rotation = ((info.props.transforms || [])[step.transformId] || {}).rotation || 0;
+  let slots = [ {
+    type: "text",
+    value: "Rotate"
+  }, {
+    type: "name",
+    value: info.name
+  }, {
+    type: "text",
+    value: "about"
+  }, {
+    type: "point",
+    value: step.target
+  }, {
+    type: "text",
+    value: "by"
+  }, {
+    type: "text",
+    value: (rotation).toFixed(2) + " degrees"
+  } ];
+  return slots;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

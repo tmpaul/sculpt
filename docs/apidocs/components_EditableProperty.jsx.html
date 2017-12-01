@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/EditableProperty.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/EditableProperty.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { PropTypes } from "react";
+import { SketchPicker } from "react-color";
+import AdjustmentControl from "components/AdjustmentControl";
+import BaseComponent from "core/BaseComponent";
+import { COLOR_REGEX, getRGBAComponents } from "utils/ColorUtils";
+
+export default class EditableProperty extends BaseComponent {
+  // *********************************************************
+  // Static fields
+  // *********************************************************
+  static propTypes = {
+    type: PropTypes.string,
+    value: PropTypes.any,
+    onChange: PropTypes.func
+  };
+  // *********************************************************
+  // Constructor
+  // *********************************************************
+  constructor(...args) {
+    super(...args);
+    this.autoBind();
+    this.state = {
+      editing: false
+    };
+  }
+
+  // *********************************************************
+  // React methods
+  // *********************************************************
+  render() {
+    // Get the appropriate component based on type
+    return (
+      &lt;span style={{ marginLeft: "20px" }}>
+        {this.state.editing ? 
+          (
+            &lt;span style={{ position: "absolute", zIndex: 2 }}>
+              {this.getAppropriateComponent(this.props)}
+            &lt;/span>
+          ) :
+          this.props.value}
+        &lt;span style={{ float: "right" }} onClick={() => this.setState({ editing: !this.state.editing })}>
+          {this.state.editing ? "Close" : "Edit"}
+        &lt;/span>
+      &lt;/span>
+    );
+  }
+
+  /**
+   * Get the component to render based on type of property
+   * @param {Object} props The component props
+   * @return {React.Component} An appropriate react component based on the property
+   */
+  getAppropriateComponent(props) {
+    switch (props.type) {
+      case "color":
+        return (&lt;SketchPicker 
+          color={this.formatColor(props.value)} 
+          onChangeComplete={({ rgb }) => props.onChange(`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`)}/>);
+      case "number":
+        // Expression with slider
+        return (&lt;AdjustmentControl value={props.value} onChange={(v) => props.onChange(Number(v))}/>);
+    };
+  }
+
+  /**
+   * Format and normalize color into rgba format or hex string
+   * @param  {String} color The color to normalize
+   * @return {String|Object}       Color object with r,g,b,a values or hex string
+   */
+  formatColor(color) {
+    if (COLOR_REGEX.hex.strict.test(color)) {
+      return color;
+    } else if (COLOR_REGEX.rgb.strict.test(color) || COLOR_REGEX.rgba.strict.test(color)) {
+      return getRGBAComponents(color);
+    }
+    return color;
+  }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

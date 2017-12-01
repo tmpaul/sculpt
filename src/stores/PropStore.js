@@ -65,8 +65,8 @@ export default class PropStore {
 
   /**
    * Set the selection state of the given component to the given target value
-   * @param {[type]} componentRefId [description]
-   * @param {[type]} targetValue    [description]
+   * @param {String} componentRefId [description]
+   * @param {Boolean} targetValue    [description]
    */
   setSelectionState(componentRefId, targetValue) {
     let info = this._cache[componentRefId];

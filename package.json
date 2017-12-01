@@ -8,13 +8,14 @@
     "url": "http://github.com/tmpaul06/sculpt.git"
   },
   "scripts": {
+    "method:docs": "jsdoc -r src",
     "test": "npm run lint && npm run test:mocha",
     "test:mocha": "NODE_ENV=test nyc -r html -r cobertura -r text mocha --opts support/mocha.opts",
     "test:mocha:min": "mocha --reporter min --growl --opts support/mocha.opts",
     "test:watch": "nodemon --watch src --watch support --watch test --exec npm run test:mocha:min",
     "lint": "eslint --ext .js,.jsx src",
     "prebuild": "rm -rf dist",
-    "build-docs": "export NODE_ENV=production && npm run prebuild && npm run lint && webpack --config webpack-docs.config.js --progress --colors --profile",
+    "build:docs": "export NODE_ENV=production && npm run prebuild && npm run lint && webpack --config webpack-docs.config.js --progress --colors --profile && npm run method:docs && cp -rf out docs/apidocs",
     "start": "node server.js"
   },
   "devDependencies": {
@@ -24,13 +25,13 @@
     "babel-jest": "^20.0.3",
     "babel-loader": "^6.3.2",
     "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-istanbul": "^4.1.5",
     "babel-plugin-module-resolver": "2.5.0",
     "babel-plugin-transform-async-to-generator": "6.22.0",
     "babel-plugin-transform-decorators-legacy": "1.3.4",
     "babel-plugin-transform-flow-strip-types": "6.22.0",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-polyfill": "6.23.0",
-    "babel-plugin-istanbul": "^4.1.5",
     "babel-preset-env": "1.1.10",
     "babel-preset-es2015": "6.22.0",
     "babel-preset-es2016": "6.22.0",
@@ -52,6 +53,7 @@
     "html-webpack-plugin": "2.24.1",
     "install": "^0.10.2",
     "jest": "^20.0.4",
+    "jsdoc": "^3.5.5",
     "json-loader": "0.5.4",
     "less": "2.7.1",
     "less-loader": "2.2.3",
@@ -88,8 +90,12 @@
     "require": [
       "babel-register"
     ],
-    "exclude": [ "src/**/*/tests/**/*.js" ],
-    "include": [ "src/**/*.js" ],
+    "exclude": [
+      "src/**/*/tests/**/*.js"
+    ],
+    "include": [
+      "src/**/*.js"
+    ],
     "sourceMap": false,
     "instrument": false
   }

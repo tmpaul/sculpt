@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/StepTree.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/StepTree.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * A class that represents a tree of steps.
+ * A node with children is a looping step.
+ * @class
+ */
+export default class StepTree {
+  constructor(step) {
+    this._step = step;
+    this._children = [];
+    // id of the step is the node's position in tree joined with `.`
+    // e.g "0.1", "0.2.1" where "0" represents root node.
+    this._id = "0";
+    // The BFS index
+    this._index = 0;
+  }
+
+  // *********************************************************
+  // Public methods
+  // *********************************************************
+  /**
+   * Return the current active step
+   * @return {step} Current step
+   */
+  getCurrentStep() {
+    return this._getStepById(this._index);
+  }
+
+  updateCurrentStep(partialStep) {
+    let currentStep = this._getStepById(this._index);
+    currentStep = Object.assign({}, currentStep, partialStep);
+    this._updateStep(currentStep, currentStep._id);
+    return currentStep;
+  }
+
+  // *********************************************************
+  // Private methods
+  // *********************************************************
+  _getStepById(id, subtree) {
+    subtree = subtree || this;
+    if (subtree._index === id) {
+      return subtree._step;
+    } else if (subtree &amp;&amp; subtree.children &amp;&amp; subtree.children.length) {
+      for (let i = 0; i &lt; subtree._children.length; i++) {
+        let result = this._getStepById(id, subtree._children[i]);
+        if (result) {
+          // Break and return early
+          return result._step;
+        }
+      } 
+    }
+  }
+
+  _insertStep(step, parentId) {
+    // Given a step, we need to know which node to insert into
+    let idParts = parentId.split(".");
+    let node = this;
+    idParts.slice(1).forEach((part) => {
+      if (node &amp;&amp; node.children) {
+        node = node.children[part];
+      } else {
+        // The parent node does not exist
+        throw new Error("Parent node " + parentId + " does not exist");
+      }
+    });
+    // Only create the children array if needed.
+    node.children = node.children || [];
+    let lastChild = node.children[node.children.length - 1];
+    node.children.push({
+      "_step": step,
+      "_index": lastChild._index + 1,
+      "_id": parentId + "." + lastChild.length
+    });
+    return parentId + "." + lastChild.length;
+  }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

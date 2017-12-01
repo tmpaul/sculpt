@@ -10,6 +10,7 @@ dist
 build
 release
 lib
+out
 
 # Temporary files
 tmp

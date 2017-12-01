@@ -7,3 +7,8 @@ export function isNumeric(num) {
   num = "" + num;
   return !isNaN(num) && !isNaN(parseFloat(num));
 };
+
+export function isObject(target) {
+  // Exclude dates, null, arrays
+  return (target !== undefined) && (target !== null) && (typeof target === "object") && (Object.prototype.toString.call(target) === "[object Object]");
+};

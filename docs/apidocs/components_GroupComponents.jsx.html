@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/GroupComponents.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/GroupComponents.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import BaseComponent from "core/BaseComponent";
+import ReactDOM from "react-dom";
+import ControlPoint from "components/Marker";
+import Rectangle from "components/rect/Rectangle";
+import Draggable from "components/Draggable";
+import OperationStore from "stores/OperationStore";
+
+
+let DraggableRect = Draggable("rect");
+
+/**
+ * A root SVG &lt;g> component. It simply showing snapping points
+ * @param {Object} props Properties passed down to this component
+ * @return {Object} React render tree
+ */
+export default class Canvas extends BaseComponent {
+
+  static defaultProps = {
+    width: 660,
+    height: 420,
+    translateX: 20,
+    translateY: 20,
+    canvasWidth: 700,
+    canvasHeight: 460
+  };
+
+  static displayName = "Canvas";
+
+  constructor(...args) {
+    super(...args);
+    this.autoBind();
+  }
+
+  static getSnappingPoint =  Rectangle.getSnappingPoint;
+  static getSnappingPoints = Rectangle.getSnappingPoints;
+
+  componentDidMount() {
+    let node = ReactDOM.findDOMNode(this);
+    // The bounding box is used to calculat the offsets that need to be applied
+    // to events from canvas
+    this.bbox = node.getBoundingClientRect();
+    this.forceUpdate();
+  }
+
+  render() {
+    let snap = false;
+    let op = OperationStore.getCurrentOperation() || {};
+    if (op.operation) {
+      snap = true;
+    }
+    return (
+      &lt;g>
+        {
+          // There is a hidden rectangle with width and height for capturing mouse events
+        }
+        &lt;DraggableRect
+          x={0}
+          y={0}
+          width={this.props.canvasWidth}
+          height={this.props.canvasHeight}
+          fill="transparent"
+          stroke="none"
+          onDragStart={this.handleDragStart}
+          onDrag={this.handleDrag}
+          onDragEnd={this.handleDragEnd}
+        />
+        &lt;g transform={`translate(${this.props.translateX}, ${this.props.translateY})`}>
+          {
+            // Draw a rect showcasing the canvas border
+          }
+          &lt;rect
+            x={0}
+            y={0}
+            width={this.props.width}
+            height={this.props.height}
+            fill="none"
+            pointerEvents="none"
+            stroke="#dedede"
+            strokeWidth="1px"
+          />
+          &lt;g style={{
+            "display": snap ? "block" : null
+          }}>
+            {
+              // Control points on corners
+            }
+            {Canvas.getSnappingPoints(this.props, false).map((point, index) => {
+              return (
+                &lt;ControlPoint
+                  key={point.name}
+                  x={point.x}
+                  y={point.y}
+                  snap={snap}
+                  selected={false}
+                />
+              );
+            })}
+          &lt;/g>
+          {this.props.children}
+        &lt;/g>
+      &lt;/g>
+    );
+  }
+
+  handleDragStart({ origin } = {}) {
+    this.handleEvent("CANVAS_DRAG_START", {
+      x: origin[0],
+      y: origin[1]
+    });
+  }
+
+  handleDrag({ origin, x, y, dx, dy } = {}) {
+    this.handleEvent("CANVAS_DRAG_MOVE", {
+      x: origin[0] + x,
+      y: origin[1] + y,
+      deltaX: x,
+      deltaY: y
+    });
+  }
+
+  handleDragEnd({ origin, x, y } = {}) {
+    this.handleEvent("CANVAS_DRAG_END", {
+      x: origin[0] + x,
+      y: origin[1] + y
+    });
+  }
+
+  handleEvent(eventType, payload) {
+    if (eventType === "CANVAS_DRAG_START" || eventType === "CANVAS_DRAG_END" || eventType === "CANVAS_DRAG_MOVE") {
+      let { translateX, translateY, width, height } = this.props;
+      // payload.x -= this.bbox.left;
+      // payload.y -= this.bbox.top;
+      payload.x = Math.max(translateX, Math.min(payload.x, width + translateX)) - translateX;
+      payload.y = Math.max(translateY, Math.min(payload.y, height + translateY)) - translateY;
+    }
+    if (eventType === "CANVAS_DRAG_MOVE") {
+      let { width, height } = this.props;
+      payload.deltaX = Math.min(payload.deltaX, width);
+      payload.deltaY = Math.min(payload.deltaY, height);
+    }
+    if (eventType === "SELECT") {
+      return;
+    }
+    this.props.handleEvent({
+      type: eventType,
+      payload
+    });
+  }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

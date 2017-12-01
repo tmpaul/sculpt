@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core/draw/DrawEventHandler.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core/draw/DrawEventHandler.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { 
+  CREATE_STEP, 
+  UPDATE_STEP,
+  ABORT_STEP,
+  HIGHLIGHT_POINT, 
+  SHOW_SNAPPING_POINTS 
+} from "mutation-types/MutationTypes";
+import { AbortStep } from "components/steps";
+
+/**
+ * Handle drawing a component based on input event
+ * @param  {Object} step              The step object representing the draw operation.
+ *                                    It is undefined if the object is not yet drawn on
+ *                                    screen
+ * @param  {Object} event             The event raised from canvas
+ * @param  {Function} componentType   The type of component being drawn
+ * @return {Array}                    The list of intended mutations
+ */
+export default function drawMutationsGenerator(step, event = {}, componentType) {
+  let mutations = [];
+  switch (event.type) {
+    case "CANVAS_DRAG_START":
+      return handleDrawStart(step, event, componentType);
+    case "CANVAS_DRAG_MOVE":
+      return handleDrawMove(step, event, componentType);
+    case "CANVAS_DRAG_END":
+      return handleDrawEnd(step, event, componentType);
+    default:
+      return mutations;
+  }
+};
+
+/**
+ * Handle drawing a component based on input event
+ * @param  {Object} step              The step object representing the draw operation.
+ *                                    It is undefined if the object is not yet drawn on
+ *                                    screen
+ * @param  {Object} event             The event raised from canvas
+ * @param  {Function} componentType   The type of component being drawn
+ * @return {Array}                    The list of intended mutations
+ */
+function handleDrawStart(step, event, componentType) {
+  let mutations = [];
+  mutations.push({
+    type: SHOW_SNAPPING_POINTS
+  });
+  // We will do this for DRAWING. All but the one that is being inserted. State
+  // tree is fine, but we want state portions to be updated by pure functions.
+  if (event.payload &amp;&amp; event.payload.pointId) {
+    mutations.push({
+      type: HIGHLIGHT_POINT,
+      payload: event.payload.pointId
+    });
+  }
+  let updatedStep = componentType.onDrawStart(step ? step : {
+    type: "DRAW",
+    info: {
+      type: componentType
+    },
+    active: true
+  }, event.payload);
+  // Create a new step if step is undefined. Otherwise re-use step
+  if (step === undefined) {
+    mutations.push({
+      type: CREATE_STEP,
+      payload: updatedStep
+    });
+  } else {
+    mutations.push({
+      type: UPDATE_STEP,
+      payload: updatedStep
+    });
+  }
+  // StepsReducer will apply and update this step.
+  return mutations;
+}
+
+/**
+ * Handle drawing a component based on input event
+ * @param  {Object} step              The step object representing the draw operation.
+ * @param  {Object} event             The event raised from canvas
+ * @param  {Function} componentType   The type of component being drawn
+ * @return {Array}                    The list of intended mutations
+ */
+function handleDrawMove(step, event, componentType) {
+  let mutations = [];
+  // We will do this for DRAWING. All but the one that is being inserted. State
+  // tree is fine, but we want state portions to be updated by pure functions.
+  if (event.payload &amp;&amp; event.payload.pointId) {
+    mutations.push({
+      type: HIGHLIGHT_POINT,
+      payload: event.payload.pointId
+    });
+  }
+  mutations.push({
+    type: UPDATE_STEP,
+    payload: componentType.onDraw(step, event.payload)
+  });
+  return mutations;
+}
+
+/**
+ * Handle drawing a component based on input event
+ * @param  {Object} step              The step object representing the draw operation.
+ * @param  {Object} event             The event raised from canvas
+ * @param  {Function} componentType   The type of component being drawn
+ * @return {Array}                    The list of intended mutations
+ */
+function handleDrawEnd(step, event, componentType) {
+  let mutations = [];
+  // We will do this for DRAWING. All but the one that is being inserted. State
+  // tree is fine, but we want state portions to be updated by pure functions.
+  if (event.payload &amp;&amp; event.payload.pointId) {
+    mutations.push({
+      type: HIGHLIGHT_POINT,
+      payload: event.payload.pointId
+    });
+  }
+  let updatedStep = componentType.onDrawEnd(step, event.payload);
+  if (updatedStep === AbortStep) {
+    mutations.push({
+      type: ABORT_STEP,
+      payload: step
+    });
+  } else {
+    mutations.push({
+      type: UPDATE_STEP,
+      payload: updatedStep
+    });
+  }
+  return mutations;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

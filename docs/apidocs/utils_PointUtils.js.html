@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/PointUtils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/PointUtils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Given pointId return the componentId
+ * @param  {String} pointId The id of the point in SnappingStore
+ * @return {String}         The id of the component
+ */
+export function getComponentIdFromPointId(pointId) {
+  return pointId.split(":")[0];
+};
+
+/**
+ * Given a pointId return the name of the point
+ * @param  {String} pointId The id of the point in SnappingStore
+ * @return {String}         The name of the point
+ */
+export function getPointNameFromPointId(pointId) {
+  return pointId.split(":")[1];
+};
+
+/**
+ * Get the id of the point given componentId and control point name
+ * @param  {String} componentId      The id of the component
+ * @param  {String} controlPointName The name of the control point
+ * @return {String}                  The unique id of the point
+ */
+export function getPointId(componentId, controlPointName) {
+  return componentId + ":" + controlPointName;
+}
+
+/**
+ * Change the point id by remapping it to a new component
+ * @param  {String} pointId      Original pointId
+ * @param  {Object} componentMap Object mapping a given component id to another
+ * @return {String}              The id of the point
+ */
+export function changePointId(pointId, componentMap) {
+  if (!componentMap) {
+    return pointId;
+  }
+  let componentId = getComponentIdFromPointId(pointId);
+  return getPointId(
+    componentMap[componentId] || componentId,
+    getPointNameFromPointId(pointId)
+  );
+};
+
+/**
+ * Convert a control point into source point
+ * @param  {String} componentId The id of the component
+ * @param  {Object} controlPoint The control point
+ * @return {Object} The converted source point
+ */
+export function toSourcePoint(componentId, controlPoint) {
+  if (!controlPoint) {
+    return undefined;
+  }
+  return {
+    pointId: getPointId(componentId, controlPoint.name),
+    x: controlPoint.x,
+    y: controlPoint.y
+  };
+}
+
+/**
+ * Find the closest control point of a component to a given x, y coord pair
+ * @param  {Function} componentType The type of the component
+ * @param  {Object} props           The props of the component
+ * @param  {Number} options.x       The x coordinate of the target point
+ * @param  {Number} options.y       The y coordinate of the target point
+ * @return {Object} The closest point
+ */
+export function closestSelfControlPoint(componentType, props, { x, y } = {}) {
+  if (x === undefined || y === undefined) {
+    return undefined;
+  }
+  let snapPoints = componentType.getSnappingPoints(props);
+  let minDist = Infinity, point;
+  snapPoints.forEach((p) => {
+    let dist = Math.abs(p.x - x) + Math.abs(p.y - y);
+    if (dist &lt; minDist) {
+      point = p;
+      minDist = dist;
+    }
+  });
+  return point;
+}
+
+/**
+ * Detect if a given candidate point is snappable onto a target point
+ * @param  {Object} snappingStore  The snap point store
+ * @param  {Object} candidatePoint The candidate point
+ * @param  {String} selfId         The id of the component whose control point we are trying to snap.
+ *                                 If the target point belongs to componentId ignore
+ * @return {Object}                The snap point or candidate point if no snap point is found
+ */
+export function detectSnapping(snappingStore, candidatePoint, selfId) {
+  let point = snappingStore.getClosestSnappingPoint(candidatePoint.x, candidatePoint.y, selfId ? function(pointId) { 
+    return getComponentIdFromPointId(pointId) !== selfId;
+  } : undefined);
+  if (point) {
+    return Object.assign(candidatePoint, {
+      pointId: point.pointId,
+      x: point.pointX,
+      y: point.pointY
+    });
+  } else {
+    return candidatePoint;
+  }
+};
+
+/**
+ * Given an SVG frame, transform a point from native space to SVG space
+ * @param  {Object} picture     The picture being drawn
+ * @param  {SVGMatrix} matrix   The transformation matrix associated with the node
+ * @param  {Object} coordinates The coordinates to transform
+ * @return {Object} The point coordinates in SVG space         
+ */
+export function getTransformedPoint(picture, matrix, coordinates = {}) {
+  if (picture.point &amp;&amp; matrix) {
+    picture.point.x = coordinates.x;
+    picture.point.y = coordinates.y;
+    // Get transformed targetPoint
+    let transformed = picture.point.matrixTransform(matrix);
+    return {
+      x: transformed.x - picture.offsetX,
+      y: transformed.y - picture.offsetY
+    };
+  }
+  return coordinates;
+};
+
+/**
+ * Reflect (Mirror) the sourcePoint with targetPoint as the origin
+ * @param  {Object} sourcePoint The source point to be reflected
+ * @param  {Object} targetPoint The point about which source point is to be reflected
+ * @return {Object}             Reflected point
+ */
+export function reflectPoint(sourcePoint, targetPoint) {
+  let deltaX = sourcePoint.x - targetPoint.x;
+  let deltaY = sourcePoint.y + targetPoint.y;
+  let d = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+  let angle = Math.tan(deltaY / deltaX);
+  return {
+    x: targetPoint.x - d * Math.cos(angle),
+    y: targetPoint.y + d * Math.sin(angle)
+  };
+};
+
+
+/**
+ * Sync a point's properties based on propStore
+ * @param  {Object} propStore     The property store
+ * @param  {Object} snappingStore The store storing snapping points
+ * @param  {Object} sourcePoint   The point to sync
+ * @return {Object}               The synced point
+ */
+export function syncPoint(propStore, snappingStore, sourcePoint) {
+  if (!sourcePoint) {
+    return;
+  }
+  let result;
+  if (sourcePoint.pointId) {
+    // Then get the x and y coordinates from picture.snappingStore.
+    let point = snappingStore.getPoint(sourcePoint.pointId);
+    result = {
+      x: point.pointX,
+      y: point.pointY,
+      pointId: point.pointId
+    };
+  } else {
+    result = sourcePoint;
+  }
+  return result;
+}
+
+/**
+ * Given a pointId return its textual description
+ * @param  {Object} propStore The property store
+ * @param  {String} pointId   The id of the point to describe
+ * @return {String}           The textual description of the point
+ */
+export function getPointDescription(propStore, pointId) {
+  let split = pointId.split(":");
+  let componentId = split[0];
+  // The last split element is the name of the point. Everything else is componentId
+  let info = propStore.getInfo(componentId);
+  return info.name + "'s " + split[1];
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

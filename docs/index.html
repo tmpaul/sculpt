@@ -16,6 +16,8 @@
   </head>
   <body>
     <div class="wrapper">
+      <div id="header" class="header">
+      </div>
       <svg id="logo" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
         <defs>
           <pattern id="pattern-0" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 100 100">
@@ -51,6 +53,7 @@
       <div class="logo-text">
         <p id="subtitle" class="subtitle">Draw dynamic visualizations with Javascript</p>
         <button id="launch-button" class="primary-button">Launch Editor</button>
+        <button class="primary-button"><a href="/apidocs">API reference</a></button>
       </div>
       <!-- <section id="sculpt-root">
       </section> -->
@@ -59,26 +62,15 @@
 
       <section class="content">
         <h4>Inspiration</h4>
-        <p>
+        <p class="inspiration">
           This project was inspired by Bret Victor's "Drawing Dynamic Visualizations".
-          
-          <iframe id="ytplayer" type="text/html" width="640" height="360"
-  src="https://www.youtube.com/embed/ef2jpjTEB5U"
-  frameborder="0"></iframe>
-
-          Using direct manipulation of visual symbols along with dynamic expressions,
-          the tool can generate a variety of different visualizations that reactively
-          bind to the underlying data.
-
-
-          Using direct manipulation of visual symbols along with dynamic expressions,
-          the tool can generate a variety of different visualizations that reactively
-          bind to the underlying data.
-
           Using direct manipulation of visual symbols along with dynamic expressions,
           the tool can generate a variety of different visualizations that reactively
           bind to the underlying data.
         </p>
+        <iframe id="ytplayer" type="text/html" width="640" height="360"
+  src="https://www.youtube.com/embed/ef2jpjTEB5U"
+  frameborder="0"></iframe>
       </section>
 
       <script type="text/javascript" src="main.js"></script>

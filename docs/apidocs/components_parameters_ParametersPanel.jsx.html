@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/parameters/ParametersPanel.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/parameters/ParametersPanel.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { PropTypes } from "react";
+import BaseComponent from "core/BaseComponent";
+import Parameter from "components/parameters/Parameter";
+
+export default class ParametersPanel extends BaseComponent {
+  // *********************************************************
+  // Constructor
+  // *********************************************************
+  constructor(...args) {
+    super(...args);
+    this.autoBind();
+  }
+  // *********************************************************
+  // React methods
+  // *********************************************************
+  render() {
+    let parameters = this.props.parameters || [];
+    return (
+      &lt;div className="parameters-panel-container">
+        &lt;h4 style={{ margin: 0 }}>Parameters&lt;/h4>
+        {
+          // A row for each parameter
+        }
+        {parameters.map((parameter, index) => {
+          return (
+            &lt;Parameter
+              key={index}
+              name={parameter.name}
+              value={parameter.value}
+              expressionResolver={this.props.expressionResolver}
+              onDrag={this.handleDrag.bind(null, index)}
+              onRemove={this.handleRemove.bind(null, index)}
+              onChange={this.handleChange.bind(null, index)}
+            />
+          );
+        })}
+        {
+          // Invisible row for adding a new one
+        }
+        &lt;Parameter
+          dummy={true}
+          onChange={this.handleChange.bind(null, parameters.length)}
+        />
+      &lt;/div>
+    );
+  }
+
+  // *********************************************************
+  // Event handlers
+  // *********************************************************
+  /**
+   * Handle a parameter attribute change
+   * @param  {Number} index The index of the parameter being modified
+   * @param  {String} attributeType The type of attribute being changed e.g `name`, `value`
+   * @param  {String|Object} changedValue  The changed value
+   */
+  handleChange(index, attributeType, changedValue) {
+    let parameter = this.props.parameters[index] || {};
+    parameter[attributeType] = changedValue;
+    this.props.onParameterChange(index, parameter);
+    this.forceUpdate();
+  }
+
+  /**
+   * Remove a parameter corresponding to the given index
+   * @param  {Number} index The index of the parameter in question
+   */
+  handleRemove(index) {
+    // this.props.parameters.splice(index, 1);
+    // this.forceUpdate();
+  }
+
+  handleDrag(index, event) {
+    let parameter = this.props.parameters[index];
+    event.dataTransfer.setData("text", JSON.stringify({
+      type: "parameter",
+      // We only pass the index. To avoid duplicates, the Step
+      // component will always fetch 
+      value: index
+    }));
+  }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

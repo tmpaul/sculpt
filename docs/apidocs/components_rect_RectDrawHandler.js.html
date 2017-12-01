@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/rect/RectDrawHandler.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/rect/RectDrawHandler.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { ObjectUtils } from "utils/GenericUtils";
+import { AbortStep } from "components/steps";
+import { detectSnapping, syncPoint } from "utils/PointUtils";
+import { getTransformationMatrix } from "utils/TransformUtils";
+/**
+ * Handle the start of drawing operation for a rectangle
+ * 
+ * @param  {Object} picture                The picture being drawn
+ * @param  {Object} step                   The draw step
+ * @param  {Number} options.x              The start point x coordinate
+ * @param  {Number} options.y              The start point y coordinate
+ * @param  {String} options.pointId        Optional string id of a point that the user clicked on
+ * @return {Object} step                   The updated step
+ */
+export function onDrawStart(picture, step, { x, y, pointId } = {}) {
+  step.source = {
+    x,
+    y,
+    pointId
+  };
+  return step;
+}
+
+/**
+ * A function that handles drawing a rectangle
+ * @param  {Object} picture                The picture being drawn
+ * @param  {Object} step                   The draw step
+ * @param  {Number} options.deltaX         The delta x of mouse cursor
+ * @param  {Number} options.deltaY         The delta y of mouse cursor
+ * @param  {String} options.pointId        The id of the point user is drawing close to
+ * @return {Object} step                   The updated step
+ */
+export function onDraw(picture, step, { deltaX, deltaY, pointId }) {
+  // deltaX and deltaY take care helps us figure out the direction of drag. The direction
+  // can change during movement, e.g -deltaX means the source point is different.
+  step.deltaX = deltaX;
+  step.deltaY = deltaY;
+  // The final point
+  step.target = {
+    pointId,
+    x: step.source.x + deltaX,
+    y: step.source.y + deltaY
+  };
+  return step;
+};
+
+/**
+ * Handle draw end
+ * @param  {Object} picture        The picture being drawn
+ * @param  {Object} step           The draw step
+ * @param  {Number} options.x      The x point
+ * @param  {Number} options.y      The y point
+ * @param  {String} options.pointId        The id of the point user is drawing close to
+ * @return {Object} step           The updated step
+ */
+export function onDrawEnd(picture, step, { x, y, pointId } = {}) {
+  if (step.deltaX === undefined &amp;&amp; step.deltaY === undefined) {
+    // Abort the draw operation. We do not have a target point.
+    return AbortStep;
+  }
+  step.deltaX = x - step.source.x;
+  step.deltaY = y - step.source.y;
+  // Attempt to detect snapping
+  step.target = {
+    x,
+    y,
+    pointId
+  };
+  return step;
+}
+
+export function evaluateDrawStep(picture, info, step) {
+  if (step.type === "DRAW") {
+    /*
+      Find out props
+     */
+    let props = {}, sourcePoint, targetPoint = step.target;
+    // Look at the source point and target point.
+    sourcePoint = syncPoint(picture.propStore, picture.snappingStore, step.source);
+    if (step.deltaX === undefined &amp;&amp; step.deltaY === undefined) {
+      targetPoint = sourcePoint;
+    } else if (targetPoint &amp;&amp; targetPoint.pointId) {
+      // Get point information
+      targetPoint = syncPoint(picture.propStore, picture.snappingStore, targetPoint);
+      if (info.props.transforms &amp;&amp; info.props.transforms.length) {
+        // Transform the targetPoint if there are any transforms.
+        targetPoint = getTransformationMatrix(info.props.transforms).inverse()
+          .applyToPoint(targetPoint.x, targetPoint.y);
+      }
+    } else {
+      targetPoint = {
+        x: sourcePoint.x + (step.deltaX || 0),
+        y: sourcePoint.y + (step.deltaY || 0)
+      };
+    }
+    // targetPoint = detectSnapping(picture.snappingStore, targetPoint);
+    // Get deltas
+    let deltaX = targetPoint.x - sourcePoint.x;
+    let deltaY = targetPoint.y - sourcePoint.y;
+    let startingPoint, endingPoint;
+    props.x = sourcePoint.x;
+    props.y = sourcePoint.y;
+    if (deltaX > 0) {
+      if (deltaY > 0) {
+        // Start from top_left
+        startingPoint = "top left";
+      } else {
+        // deltaX > 0 and deltaY &lt; 0
+        startingPoint = "bottom left";
+      }
+    } else {
+      if (deltaY > 0) {
+        // deltaX &lt; 0 and deltaY > 0
+        startingPoint = "top right";
+      } else {
+        // deltaX &lt; 0 and deltaY &lt; 0
+        startingPoint = "bottom right";
+      }
+    }
+    // Now figure out the new properties for rectangle
+    if (startingPoint === "top left") {
+      // Draw until bottom right
+      props.x = sourcePoint.x;
+      props.y = sourcePoint.y;
+      props.width = targetPoint.x - sourcePoint.x;
+      props.height = targetPoint.y - sourcePoint.y;
+    } else if (startingPoint === "top right") {
+      props.width = sourcePoint.x - targetPoint.x;
+      props.height = targetPoint.y - sourcePoint.y;
+      props.x = sourcePoint.x - props.width;
+      props.y = sourcePoint.y;
+    } else if (startingPoint === "bottom right") {
+      props.x = targetPoint.x;
+      props.y = targetPoint.y;
+      props.width = sourcePoint.x - targetPoint.x;
+      props.height = sourcePoint.y - targetPoint.y;
+    } else if (startingPoint === "bottom left") {
+      props.x = sourcePoint.x;
+      props.y = targetPoint.y;
+      props.width = targetPoint.x - sourcePoint.x;
+      props.height = sourcePoint.y - targetPoint.y;
+    } else {
+      props.width = 0;
+      props.height = 0;
+      props.x = sourcePoint.x;
+      props.y = sourcePoint.y;
+    }
+    props.width = Math.max(props.width, 0);
+    props.height = Math.max(props.height, 0);
+    return props;
+  }
+}
+
+export function getDrawingStepSlots(info, step) {
+  let sourcePoint = step.source;
+  let targetPoint = step.target;
+  let slots = [ {
+    type: "text",
+    value: "Draw"
+  }, {
+    type: "name",
+    value: info.name
+  }, {
+    type: "text",
+    value: "from"
+  }, {
+    type: "point",
+    value: sourcePoint
+  } ];
+
+  if (targetPoint === undefined || targetPoint.pointId !== undefined) {
+    slots = slots.concat([ {
+      type: "text",
+      value: "to"
+    }, {
+      type: "point",
+      value: targetPoint
+    } ]);
+  } else {
+    slots = slots.concat([ {
+      type: "text",
+      value: (targetPoint.x - sourcePoint.x) + "px horizontally"
+    }, {
+      type: "text",
+      value: (targetPoint.y - sourcePoint.y) + "px vertically"
+    } ]);
+  }
+  return slots;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="Selectors.module_SnapPointSelectors.html">SnapPointSelectors</a></li></ul><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Namespaces</h3><ul><li><a href="Selectors.html">Selectors</a></li></ul><h3>Global</h3><ul><li><a href="global.html#_renderTreeChildren">_renderTreeChildren</a></li><li><a href="global.html#changePointId">changePointId</a></li><li><a href="global.html#closestSelfControlPoint">closestSelfControlPoint</a></li><li><a href="global.html#detectSnapping">detectSnapping</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#evaluateScaleStep">evaluateScaleStep</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#getAppropriateComponent">getAppropriateComponent</a></li><li><a href="global.html#getComponentIdFromPointId">getComponentIdFromPointId</a></li><li><a href="global.html#getCurrentStep">getCurrentStep</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getPointDescription">getPointDescription</a></li><li><a href="global.html#getPointId">getPointId</a></li><li><a href="global.html#getPointNameFromPointId">getPointNameFromPointId</a></li><li><a href="global.html#getProps">getProps</a></li><li><a href="global.html#getTransformedPoint">getTransformedPoint</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDrawEnd">handleDrawEnd</a></li><li><a href="global.html#handleDrawing">handleDrawing</a></li><li><a href="global.html#handleDrawMove">handleDrawMove</a></li><li><a href="global.html#handleDrawStart">handleDrawStart</a></li><li><a href="global.html#handleMoving">handleMoving</a></li><li><a href="global.html#handleRemove">handleRemove</a></li><li><a href="global.html#handleRotating">handleRotating</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#insertChild">insertChild</a></li><li><a href="global.html#isSelected">isSelected</a></li><li><a href="global.html#iterate">iterate</a></li><li><a href="global.html#notify">notify</a></li><li><a href="global.html#onDraw">onDraw</a></li><li><a href="global.html#onDrawEnd">onDrawEnd</a></li><li><a href="global.html#onDrawStart">onDrawStart</a></li><li><a href="global.html#onMove">onMove</a></li><li><a href="global.html#onMoveEnd">onMoveEnd</a></li><li><a href="global.html#onMoveStart">onMoveStart</a></li><li><a href="global.html#onRotate">onRotate</a></li><li><a href="global.html#onRotateEnd">onRotateEnd</a></li><li><a href="global.html#onRotateStart">onRotateStart</a></li><li><a href="global.html#onScale">onScale</a></li><li><a href="global.html#onScaleEnd">onScaleEnd</a></li><li><a href="global.html#onScaleStart">onScaleStart</a></li><li><a href="global.html#processFile">processFile</a></li><li><a href="global.html#reflectPoint">reflectPoint</a></li><li><a href="global.html#removeChild">removeChild</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#rotate">rotate</a></li><li><a href="global.html#runStep">runStep</a></li><li><a href="global.html#runStepLoop">runStepLoop</a></li><li><a href="global.html#scale">scale</a></li><li><a href="global.html#setCurrentLayer">setCurrentLayer</a></li><li><a href="global.html#setInfo">setInfo</a></li><li><a href="global.html#setProps">setProps</a></li><li><a href="global.html#setSelectionState">setSelectionState</a></li><li><a href="global.html#setSnappingPoints">setSnappingPoints</a></li><li><a href="global.html#snapPointTransformer">snapPointTransformer</a></li><li><a href="global.html#syncPoint">syncPoint</a></li><li><a href="global.html#toSourcePoint">toSourcePoint</a></li><li><a href="global.html#translate">translate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 01 2017 15:57:10 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,5 +1,13 @@
 /**
+ * @module SnapPointSelectors
+ * @memberOf Selectors
+ */
+
+/**
  * Given the root state, return the set of snapping points
+ * 
+ * @function getSnappingPoints
+ * 
  * @param  {Object} state The root store state
  * @return {Array}        The list of snapping points to show
  */
@@ -9,10 +17,13 @@ export function getSnappingPoints(state = {}) {
 
 /**
  * Get the snap point that is closest to the given x,y pair
+ *
+ * @function getClosestSnappingPoint
+ * 
  * @param  {Object} state      The root state object
- * @param  {Object}            The payload with coordinates
- *         {Number} options.x  The x location to match
-           {Number} options.y  The y location to match
+ * @param  {Object} coordinates The payload with coordinates
+ *         <br>{Number} options.x  The x location to match
+           <br>{Number} options.y  The y location to match
  * @param  {Number} cycleIndex If there are multiple matching points, which point to select
  *                             (Typically done via Tab key)
  * @param  {Number} threshold  The threshold to apply to distance
