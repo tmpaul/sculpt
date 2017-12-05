@@ -17,6 +17,9 @@ import OperationStoreSingleton from "stores/OperationStore";
 import { getComponentIdFromPointId, getPointNameFromPointId,
   getPointId, changePointId } from "utils/PointUtils";
 import { getTransformationMatrix } from "utils/TransformUtils";
+
+import drawMutationsGenerator from "core/draw/DrawEventHandler";
+import { snapPointTransformer } from "core/draw/DrawEventTransformer";
 import { AbortStep } from "components/steps";
 import memoize from "memoizee";
 
@@ -125,6 +128,26 @@ export default class Picture {
     }
     let updatedStep;
     if (currentOperation.operation === OperationStoreSingleton.OPS.DRAW) {
+      // // Run the event through transformers
+      // let transformers = [ snapPointTransformer ];
+      // transformers.forEach(function(transformer) {
+      //   event = transformer(event);
+      // });
+      // let mutations = drawMutationsGenerator(this.stepStore.getCurrentStep(), event, currentOperation.args);
+      // if (event.type === "CANVAS_DRAG_START") {
+      //   // For now let's store the activeTransaction on Picture
+      //   this.activeTransaction = new Transaction(this.rootState, mutations);
+      // } else {
+      //   this.activeTransaction.addMutations(mutations);
+      // }
+      // // If there is an ABORT_STEP it will automatically roll back the step
+      // // Another example of transaction is Selecting a SCALE OP
+      // this.flushUpdates(this.activeTransaction.applyMutations());
+      // // Apply the reducers to get the new root state. The mutations are applied to transaction block.
+      // transaction.addMutations(mutations);
+      // let newRootState = transaction.applyMutations();
+      // // Replace rootState and flush changes
+      // console.log();
       updatedStep = this.handleDrawing(event, currentOperation.args);
     } else if (currentOperation.operation === OperationStoreSingleton.OPS.MOVE) {
       updatedStep = this.handleMoving(event);
@@ -208,7 +231,7 @@ export default class Picture {
         event.payload.pointId = point.pointId;
       }
       // Call drawStart handler to get updated step
-      currentStep = componentType.onDrawStart(this, {
+      currentStep = componentType.onDrawStart({
         type: "DRAW",
         info: {
           type: componentType
@@ -224,7 +247,7 @@ export default class Picture {
       let info = this.propStore.getInfo(currentStep.componentId);
       let componentType = currentStep.info.type;
       event.payload = this.transformEventPayload(event.payload, info.props);
-      currentStep = this.runStep(componentType.onDraw(this, currentStep, event.payload), info);
+      currentStep = this.runStep(componentType.onDraw(currentStep, event.payload), info);
       // Debounce and find out if the mouse pointer is close to a snapping point.
       // Exclude any points from same component
       this.debouncedPointSnap(event, false, currentStep);
@@ -239,7 +262,7 @@ export default class Picture {
         event.payload.pointId = point.pointId;
       }
       let componentId = currentStep.componentId;
-      currentStep = this.runStep(componentType.onDrawEnd(this, currentStep, event.payload), info);
+      currentStep = this.runStep(componentType.onDrawEnd(currentStep, event.payload), info);
       // If an AbortStep is received, then abort abort!
       if (currentStep === AbortStep) {
         this.children = this.children.slice(0, -1);

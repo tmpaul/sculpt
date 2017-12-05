@@ -5,14 +5,13 @@ import { getTransformationMatrix } from "utils/TransformUtils";
 /**
  * Handle the start of drawing operation for a rectangle
  * 
- * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The draw step
  * @param  {Number} options.x              The start point x coordinate
  * @param  {Number} options.y              The start point y coordinate
  * @param  {String} options.pointId        Optional string id of a point that the user clicked on
  * @return {Object} step                   The updated step
  */
-export function onDrawStart(picture, step, { x, y, pointId } = {}) {
+export function onDrawStart(step, { x, y, pointId } = {}) {
   step.source = {
     x,
     y,
@@ -23,16 +22,14 @@ export function onDrawStart(picture, step, { x, y, pointId } = {}) {
 
 /**
  * A function that handles drawing a rectangle
- * @param  {Object} picture                The picture being drawn
  * @param  {Object} step                   The draw step
  * @param  {Number} options.deltaX         The delta x of mouse cursor
  * @param  {Number} options.deltaY         The delta y of mouse cursor
  * @param  {String} options.pointId        The id of the point user is drawing close to
  * @return {Object} step                   The updated step
  */
-export function onDraw(picture, step, { deltaX, deltaY, pointId }) {
-  // deltaX and deltaY take care helps us figure out the direction of drag. The direction
-  // can change during movement, e.g -deltaX means the source point is different.
+export function onDraw(step, { deltaX, deltaY, pointId }) {
+  // deltaX and deltaY take care helps us figure out the direction of drag.
   step.deltaX = deltaX;
   step.deltaY = deltaY;
   // The final point
@@ -46,14 +43,14 @@ export function onDraw(picture, step, { deltaX, deltaY, pointId }) {
 
 /**
  * Handle draw end
- * @param  {Object} picture        The picture being drawn
- * @param  {Object} step           The draw step
- * @param  {Number} options.x      The x point
- * @param  {Number} options.y      The y point
- * @param  {String} options.pointId        The id of the point user is drawing close to
- * @return {Object} step           The updated step
+ * 
+ * @param  {Object} step            The draw step
+ * @param  {Number} options.x       The x point
+ * @param  {Number} options.y       The y point
+ * @param  {String} options.pointId The id of the point user is drawing close to
+ * @return {Object} step            The updated step
  */
-export function onDrawEnd(picture, step, { x, y, pointId } = {}) {
+export function onDrawEnd(step, { x, y, pointId } = {}) {
   if (step.deltaX === undefined && step.deltaY === undefined) {
     // Abort the draw operation. We do not have a target point.
     return AbortStep;

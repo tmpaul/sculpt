@@ -97,6 +97,13 @@ export default class Toolbar extends BaseComponent {
       return;
     }
     let keyCode = event.keyCode;
+    if (keyCode === 9) {
+      // Tab key
+      this.props.handleToolbarEvent({
+        type: "TAB_KEY",
+        value: true
+      });
+    }
     if (keyCode === 16) {
       // SHIFT key
       this.props.handleToolbarEvent({

@@ -1,7 +1,7 @@
 import { describe, it, before, beforeEach, after } from "mocha";
 import { expect } from "chai";
 
-import { createRegularStep, updateRegularStep } from "../StepsReducer";
+import { createRegularStep, updateRegularStep, abortStep } from "../StepsReducer";
 
 describe("Steps Reducer", () => {
   describe("create regular step", () => {
@@ -27,7 +27,6 @@ describe("Steps Reducer", () => {
       let result = createRegularStep(state, {
         step: 2
       });
-      expect(result === state).to.be.true;
       expect(result.steps.length).to.equal(1);
       expect(result.steps[1]).to.be.undefined;
     });
@@ -103,7 +102,6 @@ describe("Steps Reducer", () => {
           type: "MEME"
         }
       });
-      expect(result === state).to.be.true;
       expect(result.steps[0]).to.deep.equal({
         type: "DRAW"
       });
@@ -121,9 +119,35 @@ describe("Steps Reducer", () => {
         index: 1,
         step: 2
       });
-      expect(result === state).to.be.true;
       expect(result.steps.length).to.equal(1);
       expect(result.steps[1]).to.be.undefined;
+    });
+  });
+
+  describe("abort step", function() {
+    it("removes a step from state if step is aborted", function() {
+      let steps = [{
+        type: "DRAW"
+      }];
+      let result = abortStep({
+        steps
+      }, {
+        index: 0
+      });
+      expect(result.steps.length).to.equal(0);
+    });
+
+    it("changes active step index if the active step is aborted", function() {
+      let steps = [{
+        type: "DRAW"
+      }];
+      let result = abortStep({
+        steps,
+        activeStepIndex: 0
+      }, {
+        index: 0
+      });
+      expect(result.activeStepIndex).to.equal(-1);
     });
   });
 });

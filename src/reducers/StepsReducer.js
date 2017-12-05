@@ -18,7 +18,7 @@ import { isObject } from "utils/TypeUtils";
  * @param  {Object} rootState The entire rootState of the application
  * @return {Object}           Updated state with new step created
  */
-export function createRegularStep(state = {}, payload = {}, rootState) {
+export function createRegularStep(state = {}, payload = {}, rootState = {}) {
   // Regular step insert
   let index = state.activeStepIndex === undefined ? - 1 : state.activeStepIndex;
   // Insert after index. If there is another entry,
@@ -28,14 +28,11 @@ export function createRegularStep(state = {}, payload = {}, rootState) {
   if (!isObject(step)) {
     return state;
   }
-  steps = steps.slice(0, index + 1)
+  state.steps = steps.slice(0, index + 1)
     .concat([ { ...step } ])
     .concat(steps.slice(index + 1));
-  // Replace the steps
-  return { ...state, ...{
-    activeStepIndex: index + 1,
-    steps
-  } };
+  state.activeStepIndex = index + 1;
+  return state;
 };
 
 /**
@@ -49,7 +46,7 @@ export function createRegularStep(state = {}, payload = {}, rootState) {
  * @param  {Object} rootState The entire rootState of the application
  * @return {Object}           Updated state with new step created
  */
-export function updateRegularStep(state = {}, payload = {}, rootState) {
+export function updateRegularStep(state = {}, payload = {}, rootState = {}) {
   // The payload should carry the index of the step to update. This
   // way there is no magic update using latest active step index.
   let index = payload.index;
@@ -63,10 +60,34 @@ export function updateRegularStep(state = {}, payload = {}, rootState) {
   if (!isObject(step)) {
     return state;
   }
-  steps[index] = clone(merge(steps[index], payload.step));
-  // Replace the steps
-  return { ...state, ...{
-    // Clone steps
-    steps: clone(steps)
-  } };
+  steps[index] = merge(steps[index], payload.step);
+  state.steps = steps;
+  return state;
+};
+
+/**
+ * Remove a step from steps state
+ *
+ * @function abortStep
+ * @memberOf Reducers
+ * 
+ * @param  {Object} state     The state slice corresponding to steps
+ * @param  {Object} payload   The object containing the index of the step to remove
+ * @param  {Object} rootState The entire rootState of the application
+ * @return {Object}           Updated state with new step created
+ */
+export function abortStep(state = {}, payload = {}, rootState = {}) {
+  let index = payload.index;
+  if (index === null || index === undefined || isNaN(payload.index)) {
+    return state;
+  }
+  let activeStepIndex = state.activeStepIndex === undefined ? - 1 : state.activeStepIndex;
+  if (activeStepIndex === index) {
+    activeStepIndex--;
+  }
+  let steps = state.steps || [];
+  steps.splice(index, 1);
+  state.activeStepIndex = activeStepIndex;
+  state.steps = steps;
+  return state;
 };

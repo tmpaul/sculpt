@@ -8,7 +8,8 @@ import OperationStore from "stores/OperationStore";
 import DrawingStore from "stores/DrawingStore";
 import { TitleStepComponent } from "components/steps";
 import Steps from "components/steps/Steps";
-import Picture from "core/Picture";
+import Picture from "core/PictureNew";
+import PictureOld from "core/Picture";
 import PropertyPanel from "components/PropertyPanel";
 import ParametersPanel from "components/parameters/ParametersPanel";
 import DataTable from "components/data/Table";
@@ -20,23 +21,24 @@ export default class EditorPage extends BasePage {
   constructor(...args) {
     super(...args);
     this.forceUpdate = this.forceUpdate.bind(this);
-    this.state = {
-      picture: new Picture(true, this.forceUpdate)
-    };
     this.toggleEditMode = this.toggleEditMode.bind(this);
-    this.state.picture.init({
-      props: {
-        x: 0,
-        y: 0,
-        canvasWidth: 700,
-        canvasHeight: 460,
-        // The painting surface is offset so as to show the control
-        // points at the border. Otherwise they will be cut off.
-        translateX: 20,
-        translateY: 20,
-        width: 660,
-        height: 420
-      }
+
+    this.state = {
+      picture: new PictureOld(true, this.forceUpdate)
+    };
+    // Initialize the picture
+    this.picture = new Picture({}, this.forceUpdate);
+    this.picture.init({
+      x: 0,
+      y: 0,
+      canvasWidth: 700,
+      canvasHeight: 460,
+      // The painting surface is offset so as to show the control
+      // points at the border. Otherwise they will be cut off.
+      translateX: 20,
+      translateY: 20,
+      width: 660,
+      height: 420
     });
   }
 
@@ -118,7 +120,7 @@ export default class EditorPage extends BasePage {
                 <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litPaint">
                 </feComposite>
               </filter>
-              {this.state.picture.render()}
+              {this.picture.render()}
             </svg>
             <Toolbar dispatchEvent={this.handleToolbarEvent} handleToolbarEvent={this.handleToolbarEvent}/>
           </div>    
@@ -142,6 +144,9 @@ export default class EditorPage extends BasePage {
   handleToolbarEvent(event) {
     if (event.type === "SHIFT_KEY") {
       return this.state.picture.stepStore.shiftKey = event.value;
+    }
+    if (event.type === "TAB_KEY") {
+      return EventStore.event.payload.cycleIndex = (EventStore.event.payload.cycleIndex || 0) + 1;
     }
     this.state.picture.notify(event);
     this.forceUpdate();
