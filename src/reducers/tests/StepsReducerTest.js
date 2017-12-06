@@ -1,7 +1,7 @@
 import { describe, it, before, beforeEach, after } from "mocha";
 import { expect } from "chai";
 
-import { createRegularStep, updateRegularStep, abortStep } from "../StepsReducer";
+import { createRegularStep, updateRegularStep, abortStep, seedStep } from "../StepsReducer";
 
 describe("Steps Reducer", () => {
   describe("create regular step", () => {
@@ -126,9 +126,9 @@ describe("Steps Reducer", () => {
 
   describe("abort step", function() {
     it("removes a step from state if step is aborted", function() {
-      let steps = [{
+      let steps = [ {
         type: "DRAW"
-      }];
+      } ];
       let result = abortStep({
         steps
       }, {
@@ -138,9 +138,9 @@ describe("Steps Reducer", () => {
     });
 
     it("changes active step index if the active step is aborted", function() {
-      let steps = [{
+      let steps = [ {
         type: "DRAW"
-      }];
+      } ];
       let result = abortStep({
         steps,
         activeStepIndex: 0
@@ -148,6 +148,142 @@ describe("Steps Reducer", () => {
         index: 0
       });
       expect(result.activeStepIndex).to.equal(-1);
+    });
+  });
+
+  describe("seed step", function() {
+    it("returns same state if an index is not provided", function() {
+      expect(seedStep({}, {})).to.deep.equal({});
+    });
+
+    it("returns same state if payload info is not an object", function() {
+      expect(seedStep({}, {
+        info: null
+      })).to.deep.equal({});
+      expect(seedStep({}, {
+        info: [ 1,2,3 ]
+      })).to.deep.equal({});
+      expect(seedStep({}, {
+        info: "abcd"
+      })).to.deep.equal({});
+      let state = {
+        steps: [ {
+          type: "DRAW",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      };
+      expect(seedStep(state, {
+        info: [ 1,2,3 ]
+      })).to.deep.equal(state);
+    });
+
+    it("does not update step if componentId is missing", function() {
+      expect(seedStep({
+        steps: [ {
+          type: "DRAW",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      }, {
+        info: {
+          b: 2
+        }
+      })).to.deep.equal({
+        steps: [ {
+          type: "DRAW",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      });
+    });
+
+    it("does not update step if step type is not DRAW", function() {
+      expect(seedStep({
+        steps: [ {
+          type: "MOVE",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      }, {
+        info: {
+          b: 2
+        }
+      })).to.deep.equal({
+        steps: [ {
+          type: "MOVE",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      });
+    });
+
+    it("updates info for a simple step", function() {
+      expect(seedStep({
+        steps: [ {
+          type: "DRAW",
+          componentId: "0.0",
+          info: {
+            a: 1
+          }
+        } ]
+      }, {
+        componentId: "0.0",
+        info: {
+          b: 2
+        }
+      })).to.deep.equal({
+        steps: [ {
+          type: "DRAW",
+          componentId: "0.0",
+          info: {
+            a: 1,
+            b: 2
+          }
+        } ]
+      });
+    });
+
+    it("updates info for a loop step", function() {
+      expect(seedStep({
+        steps: [ {
+          type: "LOOP_STEP",
+          steps: [ {
+            type: "DRAW",
+            componentId: "0.0",
+            info: {
+              a: 1
+            }
+          } ]
+        } ]
+      }, {
+        componentId: "0.0",
+        info: {
+          b: 2
+        }
+      })).to.deep.equal({
+        steps: [ {
+          type: "LOOP_STEP",
+          steps: [ {
+            type: "DRAW",
+            componentId: "0.0",
+            info: {
+              a: 1,
+              b: 2
+            }
+          } ]
+        } ]
+      });
     });
   });
 });

@@ -203,6 +203,8 @@ export default class Picture {
   transformEventPayload(payload, props) {
     if (props.transforms && props.transforms.length) {
       let dx = payload.deltaX, dy = payload.deltaY;
+      // The deltaX and deltaY provided need to be transformed into
+      // the component space.
       let matrix = getTransformationMatrix(props.transforms).inverse();
       payload.deltaX = dx * matrix.a + dy * matrix.c;
       payload.deltaY = dx * matrix.b + dy * matrix.d;

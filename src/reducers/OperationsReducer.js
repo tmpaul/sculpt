@@ -78,7 +78,6 @@ export function rotateComponent(state = {}) {
 };
 
 
-
 /**
  * Non public function which generates the reducers for move, scale, rotate
  * etc

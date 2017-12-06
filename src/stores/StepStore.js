@@ -133,7 +133,7 @@ export default class StepStore extends EventEmitter {
           // Then update all steps that are looped across iterations
           let loopStep = this.getLoopStep(step.loopIndex);
           // Find out all of steps corresponding to this step.
-          // 01 2 3 4 5 6 7
+          // 0 1 2 3 4 5 6 7
           let subStepIndex = (i - loopStep.startIndex) % (loopStep.steps.length);
           for (let iter = 0; iter < loopStep.iteration; iter ++) {
             let k = loopStep.startIndex + subStepIndex + iter * (loopStep.steps.length);

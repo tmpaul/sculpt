@@ -1,7 +1,20 @@
 import merge from "deepmerge";
-import clone from "clone";
 
 import { isObject } from "utils/TypeUtils";
+
+/**
+ * Return early if payload does not contain step index
+ * 
+ * @param  {Object} payload The object containing step index
+ * @return {Boolean}        True if index is well formed, False otherwise
+ */
+function earlyReturn(payload) {
+  let index = payload.index;
+  if (index === null || index === undefined || isNaN(payload.index)) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * @module StepsReducer
@@ -50,7 +63,7 @@ export function updateRegularStep(state = {}, payload = {}, rootState = {}) {
   // The payload should carry the index of the step to update. This
   // way there is no magic update using latest active step index.
   let index = payload.index;
-  if (index === null || index === undefined || isNaN(payload.index)) {
+  if (earlyReturn(payload)) {
     return state;
   }
   // Insert after index. If there is another entry,
@@ -78,7 +91,7 @@ export function updateRegularStep(state = {}, payload = {}, rootState = {}) {
  */
 export function abortStep(state = {}, payload = {}, rootState = {}) {
   let index = payload.index;
-  if (index === null || index === undefined || isNaN(payload.index)) {
+  if (earlyReturn(payload)) {
     return state;
   }
   let activeStepIndex = state.activeStepIndex === undefined ? - 1 : state.activeStepIndex;
@@ -89,5 +102,48 @@ export function abortStep(state = {}, payload = {}, rootState = {}) {
   steps.splice(index, 1);
   state.activeStepIndex = activeStepIndex;
   state.steps = steps;
+  return state;
+};
+
+/**
+ * Seed a DRAW step with information on the components such as name,
+ * info, guide mode, selected etc.
+ *
+ * @function seedStep
+ * @memberOf Reducers
+ * 
+ * @param  {Object} state   The root state object
+ * @param  {Object} payload The payload containing step index and seed info
+ * @return {Object}         The updated root state object
+ */
+export function seedStep(state = {}, payload = {}) {
+  if (!payload.componentId) {
+    return state;
+  }
+  if (!isObject(payload.info)) {
+    return state;
+  }
+  // Get the corresponding DRAW step
+  let steps = state.steps;
+  let len1 = steps.length, len2 = 0;
+  let targetStep;
+  for (let i = 0; i < steps.length; i++) {
+    let step = steps[i];
+    // This is a LOOP_STEP, iterate over its substeps and check
+    if (step.type === "LOOP_STEP") {
+      len2 = step.steps.length;
+      for (let j = 0; j < len2; j++) {
+        let substep = step.steps[j];
+        if (substep.componentId === payload.componentId && substep.type === "DRAW") {
+          // Update subStep
+          substep.info = merge(substep.info || {}, payload.info);
+          break;
+        }
+      }
+    } else if (step.componentId === payload.componentId && step.type === "DRAW") {
+      step.info = merge(step.info || {}, payload.info);
+      break;
+    }
+  }
   return state;
 };
