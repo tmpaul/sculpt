@@ -1,7 +1,7 @@
 import { INSERT_COMPONENT, ADJUST_COMPONENT, SEED_STEP, STEP_LOOP } from "mutation-types/MutationTypes";
 import { getSelectedComponentIds, isGuide } from "selectors/ComponentSelectors";
 
-export default function toolbarMutationsGenerator(event, state = {}) {
+export default function generateToolBarMutations(event = {}, state = {}) {
   switch (event.type) {
     case "DRAW":
       // Update op store operation
@@ -39,5 +39,7 @@ export default function toolbarMutationsGenerator(event, state = {}) {
         type: STEP_LOOP,
         payload: null
       } ];
+    default:
+      return [];
   }
 };
