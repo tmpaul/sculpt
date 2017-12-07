@@ -1,5 +1,5 @@
 import { getTransformationMatrix } from "utils/TransformUtils";
-import { getClosestSnappingPoint } from "selectors/points/SnapPointSelectors";
+import { getClosestSnappingPoint } from "selectors/SnapPointSelectors";
 
 /**
  * @namespace Transformers

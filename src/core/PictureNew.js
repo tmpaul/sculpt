@@ -49,7 +49,7 @@ class Picture {
     // We could've crafted a CREATE_STEP mutation to do this. But drawing the canvas itself
     // is special. We don't want that to be a step in the procedure. Therefore there is some
     // duplication here, but that's cool. It's just this one place
-    this._rootState.registry["0"] = {
+    this.rootState.registry["0"] = {
       id: "0",
       type: Canvas,
       props: surfaceProps,
@@ -60,7 +60,10 @@ class Picture {
     // This will feed in directly to the render layer.
     // rootNode -> Canvas, children -> [...ComponentNode, ...ComponentNode]
     // Update its snapping points as well
-    this._rootState.snapPoints["0"] = Canvas.getSnappingPoints(surfaceProps);
+    this.rootState.snapPoints["0"] = Canvas.getSnappingPoints(surfaceProps);
+    // The children of the root canvas component. All drawn elements are children
+    // of the root canvas component.
+    this.children = [];
   }
 
   /**
@@ -72,6 +75,12 @@ class Picture {
   render() {
     return (
       <Canvas {...this._getProps("0")}>
+        {
+          // render the children here
+        }
+        {this.children.map((childId) => {
+          return this._renderChild(childId);
+        })}
       </Canvas>
     );
   }
@@ -83,7 +92,23 @@ class Picture {
    * @return {Object}             The props for the given componentId
    */
   _getProps(componentId) {
-    return this._rootState.registry[componentId] || {};
+    return this.rootState.registry[componentId] || {};
+  }
+
+  /**
+   * Render an instance of a child component
+   * @param  {String} childId         The id of the child component
+   * @return {React.Component}        The React component in question
+   */
+  _renderChild(childId) {
+    let childInfo = this.rootState.registry[childId];
+    return (
+      <childInfo.type
+        key={childId}
+        componentId={childId}
+        {...childInfo.props}
+      />
+    );
   }
 };
 
