@@ -1,4 +1,4 @@
-# [Sculpt](https://tmpaul06.github.io/sculpt/)
+# [Sculpt](https://tmpaul.github.io/sculpt/)
 
 <img src="./logo.svg" width="250" height="250"/>
 
